@@ -1,0 +1,563 @@
+/* ================================
+   USER SUBSCRIPTION PAGE
+================================ */
+
+.user-subscription-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 32px;
+}
+
+.user-subscription-header {
+  margin-bottom: 24px;
+}
+
+.user-subscription-header h1 {
+  margin: 0 0 8px;
+  text-align: left;
+  font-size: 32px;
+}
+
+.user-subscription-header p {
+  margin: 0;
+  text-align: left;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+/* ================================
+   SUBSCRIPTION CARD
+================================ */
+
+.user-subscription-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 28px;
+}
+
+/* ================================
+   CARD HEADER
+================================ */
+
+.subscription-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.subscription-card-header span:first-child {
+  display: block;
+  margin-bottom: 8px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.subscription-card-header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+/* ================================
+   STATUS
+================================ */
+
+.subscription-status {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* ================================
+   DETAILS
+================================ */
+
+.subscription-details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  padding-top: 24px;
+}
+
+.subscription-details > div {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.subscription-details span {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.subscription-details strong {
+  color: #111827;
+  font-size: 15px;
+}
+
+/* ================================
+   EMPTY STATE
+================================ */
+
+.subscription-empty {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 40px 24px;
+}
+
+.subscription-empty h3 {
+  margin: 0 0 8px;
+}
+
+.subscription-empty p {
+  margin: 0;
+  text-align: left;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* ================================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 700px) {
+  .user-subscription-page {
+    padding: 24px 16px;
+  }
+
+  .subscription-details {
+    grid-template-columns: 1fr;
+  }
+}
+
+/*====================
+    BUTTON
+====================*/
+
+.subscription-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.cancel-subscription-button {
+  padding: 10px 16px;
+  border: 1px solid #dc2626;
+  border-radius: 8px;
+  background: white;
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cancel-subscription-button:hover {
+  background: #fef2f2;
+}
+
+.change-plan-section {
+  margin-top: 30px;
+  padding: 26px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.change-plan-section h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.change-plan-section p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.change-plan-button{
+   padding: 10px 16px;
+  border: 1px solid #5726dc;
+  border-radius: 8px;
+  background: white;
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* =================================
+   HEADER
+================================= */
+
+.user-subscription-header {
+  margin-bottom: 28px;
+}
+
+.user-subscription-header h1 {
+  margin: 0 0 8px;
+  font-size: 32px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.user-subscription-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+/* =================================
+   CURRENT SUBSCRIPTION CARD
+================================= */
+
+.user-subscription-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 28px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* =================================
+   CARD HEADER
+================================= */
+
+.subscription-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.subscription-card-header > div > span {
+  display: block;
+  margin-bottom: 8px;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.subscription-card-header h2 {
+  margin: 0;
+  color: #111827;
+  font-size: 25px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+/* =================================
+   STATUS
+================================= */
+
+.subscription-status {
+  padding: 6px 13px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+/* =================================
+   SUBSCRIPTION DETAILS
+================================= */
+
+.subscription-details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  padding: 26px 0;
+}
+
+.subscription-details > div {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.subscription-details span {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.subscription-details strong {
+  color: #111827;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* =================================
+   SUBSCRIPTION ACTIONS
+================================= */
+
+.subscription-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.change-plan-button,
+.cancel-subscription-button {
+  padding: 10px 17px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+/* Change Plan */
+
+.change-plan-button {
+  border: 1px solid #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.change-plan-button:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+/* Cancel */
+
+.cancel-subscription-button {
+  border: 1px solid #dc2626;
+  background: #ffffff;
+  color: #dc2626;
+}
+
+.cancel-subscription-button:hover:not(:disabled) {
+  background: #fef2f2;
+}
+
+/* Disabled */
+
+.change-plan-button:disabled,
+.cancel-subscription-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* =================================
+   CHANGE PLAN SECTION
+================================= */
+
+.change-plan-section {
+  margin-top: 24px;
+  padding: 28px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.change-plan-header {
+  margin-bottom: 22px;
+}
+
+.change-plan-header h3 {
+  margin: 0 0 7px;
+  color: #111827;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.change-plan-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* =================================
+   AVAILABLE PLANS
+================================= */
+
+.available-plans {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.plan-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 150px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.plan-option:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+}
+
+.plan-option.selected {
+  border: 2px solid #2563eb;
+  background: #eff6ff;
+}
+
+.plan-option-name {
+  color: #111827;
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.plan-option-cycle {
+  color: #6b7280;
+  font-size: 13px;
+  text-transform: capitalize;
+}
+
+.plan-option-price {
+  margin-top: 6px;
+  color: #111827;
+  font-size: 18px;
+}
+
+.plan-selected-label {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* =================================
+   CHANGE PLAN BUTTONS
+================================= */
+
+.change-plan-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.change-plan-confirm-button,
+.change-plan-cancel-button {
+  padding: 10px 17px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.change-plan-confirm-button {
+  border: 1px solid #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.change-plan-confirm-button:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.change-plan-confirm-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.change-plan-cancel-button {
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #374151;
+}
+
+.change-plan-cancel-button:hover:not(:disabled) {
+  background: #f9fafb;
+}
+
+/* =================================
+   EMPTY STATE
+================================= */
+
+.subscription-empty {
+  padding: 40px 28px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.subscription-empty h3 {
+  margin: 0 0 8px;
+  color: #111827;
+  font-size: 20px;
+}
+
+.subscription-empty p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* =================================
+   RESPONSIVE
+================================= */
+
+@media (max-width: 850px) {
+  .available-plans {
+    grid-template-columns: 1fr;
+  }
+
+  .subscription-details {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .user-subscription-page {
+    padding: 24px 16px;
+  }
+
+  .user-subscription-card,
+  .change-plan-section {
+    padding: 20px;
+  }
+
+  .subscription-card-header {
+    gap: 16px;
+    flex-direction: column;
+  }
+
+  .subscription-actions,
+  .change-plan-actions {
+    flex-direction: column;
+  }
+
+  .change-plan-button,
+  .cancel-subscription-button,
+  .change-plan-confirm-button,
+  .change-plan-cancel-button {
+    width: 100%;
+  }
+}

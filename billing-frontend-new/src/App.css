@@ -1,0 +1,489 @@
+/* ================================
+   GLOBAL
+================================ */
+
+h1 {
+  font-size: 2.5rem;
+  text-align: center;
+}
+
+p {
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+
+/* ================================
+   APP LAYOUT
+================================ */
+
+.app-layout {
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.main-content {
+  margin-left: 220px;
+  min-height: 100vh;
+  padding: 32px;
+  box-sizing: border-box;
+}
+
+
+/* ================================
+   NAVBAR
+================================ */
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  border-bottom: 1px solid #ddd;
+}
+
+.brand {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.navbar nav {
+  display: flex;
+  gap: 24px;
+}
+
+.navbar nav a {
+  color: #343434;
+  text-decoration: none;
+  font-size: 1rem;
+}
+
+.navbar nav a:hover {
+  text-decoration: underline;
+}
+
+
+/* ================================
+   ADD CUSTOMER
+================================ */
+
+.add-customer-card {
+  background: lightblue;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.add-customers-card {
+  background: rgb(255, 255, 255);
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+.add-customer-header {
+  margin-bottom: 24px;
+}
+
+.add-customer-header h2 {
+  margin: 0 0 6px;
+}
+
+.add-customer-header p {
+  margin: 0;
+  color: #6b7280;
+}
+
+
+/* ================================
+   CUSTOMER FORM
+================================ */
+
+.customer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 600;
+}
+
+.form-group input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 16px;
+  outline: none;
+}
+
+.form-group input:focus {
+  border-color: #6b7280;
+}
+
+
+/* ================================
+   BUTTONS
+================================ */
+
+.primary-button,
+.secondary-button {
+  padding: 10px 18px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.customer-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.card-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+
+/* ================================
+   CUSTOMERS PAGE
+================================ */
+
+.customers-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 32px;
+}
+
+.customers-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.customers-header > div:last-child {
+  display: flex;
+  gap: 12px;
+}
+
+
+/* ================================
+   EMPTY STATE
+================================ */
+
+.empty-state {
+  padding: 24px;
+  text-align: left;
+}
+
+.empty-state h3 {
+  margin: 0 0 8px;
+}
+
+.empty-state p {
+  margin: 0;
+  color: #6b7280;
+  text-align: left;
+}
+
+
+/* ================================
+   CUSTOMER SUMMARY
+================================ */
+
+.customer-summary {
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  width: 220px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: white;
+}
+
+.summary-card span {
+  display: block;
+  color: #6b7280;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.summary-card strong {
+  font-size: 28px;
+}
+
+
+/* ================================
+   CUSTOMER TABLE
+================================ */
+
+.customers-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: visible;
+}
+
+.card-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.customers-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.customers-table th,
+.customers-table td {
+  padding: 16px 24px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.customers-table th {
+  font-size: 13px;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.customers-table td {
+  font-size: 15px;
+}
+
+.customers-table tr:last-child td {
+  border-bottom: none;
+}
+
+
+/* ================================
+   THREE DOT MENU
+================================ */
+
+.customer-menu-cell {
+  position: relative;
+  width: 60px;
+  text-align: center;
+  overflow: visible;
+}
+
+.customer-menu-button {
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.customer-menu-button:hover {
+  background: #f1f5f9;
+}
+
+.customer-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 130px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.customer-menu button {
+  width: 100%;
+  border: none;
+  background: white;
+  padding: 11px 14px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.customer-menu button:hover {
+  background: #f5f7fa;
+}
+
+.customer-menu-up {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+
+
+/* ================================
+   MODALS
+================================ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 1000;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 520px;
+  background: white;
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.modal-header h2 {
+  margin: 0 0 6px;
+}
+
+.modal-header p {
+  margin: 0;
+}
+
+.modal-close-button {
+  border: none;
+  background: transparent;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 8px;
+}
+
+.modal-close-button:hover {
+  background: #f1f1f1;
+  border-radius: 6px;
+}
+
+
+/* ================================
+   CUSTOMER DETAILS
+================================ */
+
+.customer-details-modal {
+  max-width: 600px;
+}
+
+.customer-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.customer-details-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.customer-details-grid span {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.customer-details-grid strong {
+  font-size: 15px;
+}
+
+
+/* ================================
+   SEARCH
+================================ */
+
+.customer-search {
+  width: 220px;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  font-size: 14px;
+}
+
+.customer-search:focus {
+  outline: none;
+  border-color: #6b7280;
+}
+
+
+/* ================================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 800px) {
+
+  .main-content {
+    margin-left: 0;
+    padding: 24px 16px;
+  }
+
+}
+
+@media (max-width: 600px) {
+
+  .modal-overlay {
+    padding: 16px;
+  }
+
+  .modal-card {
+    padding: 20px;
+  }
+
+  .customer-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .customer-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .customer-search {
+    width: 100%;
+  }
+
+}

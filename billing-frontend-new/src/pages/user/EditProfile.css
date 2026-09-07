@@ -1,0 +1,123 @@
+.edit-profile-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px;
+}
+
+.edit-profile-header {
+  margin-bottom: 30px;
+}
+
+.edit-profile-header h1 {
+  margin: 0 0 8px;
+  font-size: 32px;
+}
+
+.edit-profile-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+.edit-profile-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 32px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.edit-profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.edit-profile-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.edit-profile-field label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.edit-profile-field input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 15px;
+  color: #111827;
+  transition: border-color 0.2s ease,
+              box-shadow 0.2s ease;
+}
+
+.edit-profile-field input:focus {
+  outline: none;
+  border-color: #6b7280;
+  box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.12);
+}
+
+.edit-profile-field input::placeholder {
+  color: #9ca3af;
+}
+
+.edit-profile-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 30px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.edit-profile-save-button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  background: #111827;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease,
+              transform 0.2s ease;
+}
+
+.edit-profile-save-button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.edit-profile-save-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 700px) {
+  .edit-profile-page {
+    padding: 24px 16px;
+  }
+
+  .edit-profile-card {
+    padding: 22px;
+  }
+
+  .edit-profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .edit-profile-actions {
+    justify-content: stretch;
+  }
+
+  .edit-profile-save-button {
+    width: 100%;
+  }
+}

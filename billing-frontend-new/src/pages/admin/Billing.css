@@ -1,0 +1,876 @@
+/* =========================
+   BILLING PAGE
+   ========================= */
+
+.billing-page {
+  padding: 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* =========================
+   HEADER
+   ========================= */
+
+.billing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.billing-header h1 {
+  font-size: 36px;
+  margin: 0 0 8px;
+  color: #111827;
+}
+
+.billing-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+/* =========================
+   BUTTONS
+   ========================= */
+
+.primary-button,
+.secondary-button {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 11px 18px;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: inherit;
+  transition:
+    background 0.15s ease,
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.primary-button {
+  background: #111827;
+  color: white;
+  border-color: #111827;
+}
+
+.primary-button:hover,
+.secondary-button:hover {
+  opacity: 0.85;
+}
+
+.primary-button:active,
+.secondary-button:active {
+  transform: translateY(1px);
+}
+
+/* =========================
+   BILLING STATS
+   ========================= */
+
+.billing-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.billing-stat-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 22px;
+  background: white;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.billing-stat-card span {
+  display: block;
+  color: #6b7280;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.billing-stat-card strong {
+  display: block;
+  font-size: 28px;
+  margin-bottom: 8px;
+  color: #111827;
+}
+
+.billing-stat-card small {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* =========================
+   SECTIONS
+   ========================= */
+
+.billing-section {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: white;
+  margin-bottom: 25px;
+  overflow: hidden;
+}
+
+.section-header {
+  padding: 22px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+}
+
+.section-header h2 {
+  margin: 0 0 6px;
+  font-size: 21px;
+  color: #111827;
+}
+
+.section-header p {
+  margin: 0;
+  color: #6b7280;
+}
+
+/* =========================
+   TABLE
+   ========================= */
+
+.billing-table {
+  width: 100%;
+  background: #ffffff;
+  overflow-x: auto;
+}
+
+.table-header,
+.table-row {
+  display: grid;
+  align-items: center;
+  column-gap: 24px;
+  padding: 16px 20px;
+  min-width: 650px;
+}
+
+.table-header {
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.table-row {
+  min-height: 64px;
+  border-bottom: 1px solid #f0f1f3;
+  color: #111827;
+  font-size: 14px;
+  transition: background 0.15s ease;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-row:hover {
+  background: #f9fafb;
+}
+
+/* =========================
+   PLAN TABLE
+   ========================= */
+
+.plan-columns {
+  grid-template-columns: 2fr 1fr 1.2fr;
+}
+
+.plan-columns .table-row span:first-child,
+.table-row span:first-child {
+  font-weight: 600;
+  color: #111827;
+}
+
+.plan-columns .table-row span:nth-child(2),
+.table-row span:nth-child(2) {
+  font-weight: 600;
+}
+
+/* =========================
+   EMPTY STATE
+   ========================= */
+
+.table-empty {
+  padding: 48px 20px;
+  text-align: center;
+}
+
+.table-empty strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 15px;
+  color: #111827;
+}
+
+.table-empty p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* =========================
+   CREATE PLAN MODAL
+   ========================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal {
+  width: 100%;
+  max-width: 500px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 24px 24px 18px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.modal-header p {
+  margin: 6px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.modal-close {
+  border: none;
+  background: transparent;
+  font-size: 26px;
+  color: #6b7280;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px 6px;
+}
+
+.modal-close:hover {
+  color: #111827;
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 18px 24px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+/* =========================
+   FORM
+   ========================= */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 18px;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  box-sizing: border-box;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #111827;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.form-group input::placeholder {
+  color: #9ca3af;
+}
+
+.form-group input:hover,
+.form-group select:hover {
+  border-color: #9ca3af;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-group select {
+  cursor: pointer;
+}
+
+/* =========================
+   SUBSCRIPTION FORM
+   ========================= */
+
+.subscription-form {
+  margin: 20px;
+  padding: 20px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+.subscription-form .form-group {
+  margin-bottom: 16px;
+}
+
+.subscription-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* =========================
+   SEARCH SELECT
+   ========================= */
+
+.search-select {
+  position: relative;
+}
+
+.search-results {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 5px);
+  z-index: 50;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.search-result {
+  width: 100%;
+  border: none;
+  background: white;
+  text-align: left;
+  padding: 12px 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: inherit;
+}
+
+.search-result:hover {
+  background: #f9fafb;
+}
+
+.search-result strong {
+  font-size: 14px;
+  color: #111827;
+}
+
+.search-result span {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.search-empty {
+  padding: 14px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* =========================
+   SUBSCRIPTION TABLE
+   ========================= */
+
+.subscription-columns {
+  grid-template-columns:
+    1.5fr
+    1.2fr
+    1fr
+    1.2fr
+    0.8fr;
+}
+
+/* =========================
+   STATUS BADGES
+   ========================= */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-active {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.status-past_due {
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.status-canceled {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.status-pending {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.status-paid {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.status-failed {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.status-success {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+/* =========================
+   DANGER BUTTON
+   ========================= */
+
+.danger-button {
+  border: none;
+  background: #fef2f2;
+  color: #dc2626;
+  padding: 7px 11px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.danger-button:hover {
+  background: #fee2e2;
+}
+
+/* =========================
+   INVOICE TABLE
+   ========================= */
+
+.invoice-columns {
+  grid-template-columns:
+    0.8fr
+    1.4fr
+    1fr
+    1fr
+    1fr
+    1fr
+    0.8fr;
+}
+
+/* =========================
+   PAID LABEL
+   ========================= */
+
+.paid-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #ecfdf5;
+  color: #047857;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* =========================
+   PAYMENT ATTEMPTS
+   ========================= */
+
+.payment-attempt-columns {
+  grid-template-columns:
+    0.8fr
+    1fr
+    1fr
+    1.5fr;
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media (max-width: 1000px) {
+  .billing-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .billing-page {
+    padding: 25px;
+  }
+
+  .subscription-columns {
+    grid-template-columns:
+      1.3fr
+      1fr
+      0.9fr
+      1fr
+      0.8fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .billing-page {
+    padding: 20px;
+  }
+
+  .billing-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .billing-header .primary-button {
+    width: 100%;
+  }
+
+  .billing-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .section-header .primary-button {
+    width: 100%;
+  }
+
+  .subscription-form {
+    margin: 15px;
+    padding: 16px;
+  }
+
+  .subscription-form-actions {
+    flex-direction: column;
+  }
+
+  .subscription-form-actions button {
+    width: 100%;
+  }
+
+  .plan-columns {
+    min-width: 550px;
+  }
+
+  .subscription-columns {
+    min-width: 700px;
+  }
+
+  .invoice-columns {
+    min-width: 850px;
+  }
+
+  .payment-attempt-columns {
+    min-width: 650px;
+  }
+}
+
+/* =========================
+   BILLING MANAGEMENT MODALS
+   ========================= */
+
+.plans-modal {
+  width: min(1100px, 94vw);
+  max-height: 88vh;
+  overflow-y: auto;
+}
+
+.plans-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.plans-search-input {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+}
+
+.plans-search-input:focus {
+  border-color: #2563eb;
+}
+
+.billing-stat-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.billing-stat-action {
+  border: none;
+  background: transparent;
+  padding: 4px 0;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.billing-stat-action:hover {
+  text-decoration: underline;
+}
+
+.plans-management-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.plans-management-header,
+.plans-management-row {
+  display: grid;
+  grid-template-columns:
+    70px
+    minmax(140px, 1fr)
+    minmax(120px, 150px)
+    minmax(130px, 160px)
+    minmax(150px, 190px);
+
+  align-items: center;
+  gap: 16px;
+  padding: 14px 24px;
+  min-width: 720px;
+}
+
+.plans-management-header {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.plans-management-row {
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 14px;
+}
+
+.plans-management-row:hover {
+  background: #f8fafc;
+}
+
+.plan-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.edit-plan-button,
+.delete-plan-button {
+  border: none;
+  border-radius: 6px;
+  padding: 7px 11px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.edit-plan-button {
+  background: #f1f5f9;
+}
+
+.delete-plan-button {
+  background: #fee2e2;
+}
+
+.delete-plan-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.edit-plan-button:hover {
+  background: #e2e8f0;
+}
+
+.delete-plan-button:hover:not(:disabled) {
+  background: #fecaca;
+}
+
+@media (max-width: 700px) {
+  .plans-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .plans-search-input {
+    width: 100%;
+  }
+
+  .plans-toolbar .primary-button {
+    width: 100%;
+  }
+}
+
+/* =========================
+   TABLE TOOLBAR
+   ========================= */
+
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+.table-search-input {
+  flex: 1;
+  min-width: 0;
+  height: 42px;
+  box-sizing: border-box;
+  padding: 0 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #111827;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.table-search-input::placeholder {
+  color: #9ca3af;
+}
+
+.table-search-input:hover {
+  border-color: #9ca3af;
+}
+
+.table-search-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* =========================
+   TABLE ACTIONS
+   ========================= */
+
+.table-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 16px 20px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+/* =========================
+   LOADED / HIDDEN STATE
+   ========================= */
+
+.table-empty .primary-button {
+  margin-top: 18px;
+}
+
+.table-empty .secondary-button {
+  margin-top: 18px;
+}
+
+/* =========================
+   RESPONSIVE TABLE TOOLBAR
+   ========================= */
+
+@media (max-width: 700px) {
+  .table-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .table-search-input {
+    width: 100%;
+  }
+
+  .table-toolbar .secondary-button {
+    width: 100%;
+  }
+
+  .table-actions {
+    justify-content: stretch;
+  }
+
+  .table-actions .secondary-button {
+    width: 100%;
+  }
+}

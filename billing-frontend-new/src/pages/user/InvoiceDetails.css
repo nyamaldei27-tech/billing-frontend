@@ -1,0 +1,229 @@
+.invoice-details-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 32px;
+}
+
+/* ================================
+   HEADER
+================================ */
+
+.invoice-details-header {
+  margin-bottom: 28px;
+}
+
+.invoice-details-header h1 {
+  margin: 18px 0 8px;
+  color: #111827;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.invoice-details-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+/* ================================
+   BACK BUTTON
+================================ */
+
+.invoice-back-button {
+  display: inline-block;
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.invoice-back-button:hover {
+  text-decoration: underline;
+}
+
+/* ================================
+   INVOICE CARD
+================================ */
+
+.invoice-details-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* ================================
+   TOP SECTION
+================================ */
+
+.invoice-details-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.invoice-details-label {
+  display: block;
+  margin-bottom: 7px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.invoice-details-number {
+  color: #111827;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+/* ================================
+   STATUS
+================================ */
+
+.invoice-details-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.invoice-details-status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.invoice-details-status-paid {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.invoice-details-status-failed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.invoice-details-status-canceled {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+/* ================================
+   DIVIDER
+================================ */
+
+.invoice-details-divider {
+  height: 1px;
+  margin: 28px 0;
+  background: #e5e7eb;
+}
+
+/* ================================
+   DETAILS GRID
+================================ */
+
+.invoice-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px;
+}
+
+.invoice-details-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.invoice-details-grid span {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.invoice-details-grid strong {
+  color: #111827;
+  font-size: 16px;
+}
+
+/* ================================
+   PAYMENT SECTION
+================================ */
+
+.invoice-payment-section {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.invoice-pay-button {
+  padding: 11px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.invoice-pay-button:hover {
+  background: #1d4ed8;
+}
+
+.invoice-pay-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ================================
+   PAID MESSAGE
+================================ */
+
+.invoice-paid-message {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+  color: #166534;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ================================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 700px) {
+  .invoice-details-page {
+    padding: 24px 16px;
+  }
+
+  .invoice-details-card {
+    padding: 24px;
+  }
+
+  .invoice-details-header h1 {
+    font-size: 28px;
+  }
+
+  .invoice-details-top {
+    flex-direction: column;
+  }
+
+  .invoice-details-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .invoice-payment-section {
+    justify-content: stretch;
+  }
+
+  .invoice-pay-button {
+    width: 100%;
+  }
+}

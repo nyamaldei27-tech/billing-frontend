@@ -1,0 +1,189 @@
+.user-invoices-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 32px;
+}
+
+/* ================================
+   HEADER
+================================ */
+
+.user-invoices-header {
+  margin-bottom: 28px;
+}
+
+.user-invoices-header h1 {
+  margin: 0 0 8px;
+  color: #111827;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.user-invoices-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+/* ================================
+   INVOICE CARD
+================================ */
+
+.user-invoices-card {
+  overflow-x: auto;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* ================================
+   TABLE
+================================ */
+
+.user-invoices-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+.user-invoices-table th {
+  padding: 16px 20px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.user-invoices-table td {
+  padding: 18px 20px;
+  border-bottom: 1px solid #f3f4f6;
+  color: #374151;
+  font-size: 14px;
+}
+
+.user-invoices-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.user-invoices-table tbody tr:hover {
+  background: #fafafa;
+}
+
+/* ================================
+   INVOICE LINK
+================================ */
+
+.invoice-link {
+  color: #2563eb;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.invoice-link:hover {
+  text-decoration: underline;
+}
+
+/* ================================
+   STATUS
+================================ */
+
+.invoice-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.invoice-status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.invoice-status-paid {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.invoice-status-failed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.invoice-status-canceled {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+/* ================================
+   VIEW BUTTON
+================================ */
+
+.invoice-view-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+.invoice-view-button:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+/* ================================
+   EMPTY STATE
+================================ */
+
+.user-invoices-empty {
+  padding: 48px 28px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.user-invoices-empty h3 {
+  margin: 0 0 8px;
+  color: #111827;
+  font-size: 20px;
+}
+
+.user-invoices-empty p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* ================================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 700px) {
+  .user-invoices-page {
+    padding: 24px 16px;
+  }
+
+  .user-invoices-header h1 {
+    font-size: 28px;
+  }
+
+  .user-invoices-card {
+    border-radius: 10px;
+  }
+}
