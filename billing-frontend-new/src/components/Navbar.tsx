@@ -1,7 +1,14 @@
 import { Link } from "@tanstack/react-router";
 import "./Navbar.css";
+import useAuthStore from "../stores/authStore";
 
 function Navbar() {
+  const username = useAuthStore((state) => state.username);
+  const roles = useAuthStore((state) => state.roles);
+  const logout = useAuthStore((state) => state.logout);
+
+  const isAdmin = roles.includes("ADMIN");
+
   return (
     <aside className="sidebar">
 
@@ -19,33 +26,41 @@ function Navbar() {
 
       <nav className="sidebar-nav">
 
-        <p className="sidebar-section-title">
-          MAIN
-        </p>
+        {/* ADMIN NAVIGATION */}
 
-        <Link
-          to="/admin/dashboard"
-          className="sidebar-link"
-        >
-          <span>▪</span>
-          <span>Dashboard</span>
-        </Link>
+        {isAdmin && (
+          <>
+            <p className="sidebar-section-title">
+              MAIN
+            </p>
 
-        <Link
-          to="/admin/customers"
-          className="sidebar-link"
-        >
-          <span>♣</span>
-          <span>Customers</span>
-        </Link>
+            <Link
+              to="/admin/dashboard"
+              className="sidebar-link"
+            >
+              <span>▪</span>
+              <span>Dashboard</span>
+            </Link>
 
-        <Link
-          to="/admin/billing"
-          className="sidebar-link"
-        >
-          <span>¤</span>
-          <span>Billing</span>
-        </Link>
+            <Link
+              to="/admin/customers"
+              className="sidebar-link"
+            >
+              <span>♣</span>
+              <span>Customers</span>
+            </Link>
+
+            <Link
+              to="/admin/billing"
+              className="sidebar-link"
+            >
+              <span>¤</span>
+              <span>Billing</span>
+            </Link>
+          </>
+        )}
+
+        {/* ACCOUNT NAVIGATION */}
 
         <p className="sidebar-section-title">
           ACCOUNT
@@ -100,15 +115,30 @@ function Navbar() {
         <div className="sidebar-user">
 
           <div className="user-avatar">
-            U
+            {username
+              ? username.charAt(0).toUpperCase()
+              : "U"}
           </div>
 
           <div>
-            <strong>User</strong>
-            <span>Account</span>
+            <strong>
+              {username ?? "User"}
+            </strong>
+
+            <span>
+              {isAdmin ? "Administrator" : "Customer"}
+            </span>
           </div>
 
         </div>
+
+        <button
+          type="button"
+          className="sidebar-logout"
+          onClick={logout}
+        >
+          Logout
+        </button>
 
       </div>
 

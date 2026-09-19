@@ -2,11 +2,15 @@ import { useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 
 import useBillingStore from "../../stores/billingStore";
+import useCustomerStore from "../../stores/customerStore";
 
 import "./UserPaymentHistory.css";
 
 function UserPaymentHistory() {
-  const customerId = 2;
+
+const fetchCurrentCustomer = useCustomerStore(
+  (state) => state.fetchCurrentCustomer
+);
 
   const {
     paymentAttempts,
@@ -14,10 +18,40 @@ function UserPaymentHistory() {
     paymentAttemptsError,
     fetchPaymentAttemptsByCustomerId,
   } = useBillingStore();
+useEffect(() => {
+  const loadPaymentHistory = async () => {
+    try {
+      let customer =
+        useCustomerStore.getState().currentCustomer;
 
-  useEffect(() => {
-    fetchPaymentAttemptsByCustomerId(customerId);
-  }, [fetchPaymentAttemptsByCustomerId]);
+      if (!customer) {
+        customer = await fetchCurrentCustomer();
+      }
+
+      if (!customer) {
+        console.error(
+          "No current customer found."
+        );
+
+        return;
+      }
+
+      await fetchPaymentAttemptsByCustomerId(
+        customer.id
+      );
+    } catch (error) {
+      console.error(
+        "Failed to load payment history:",
+        error
+      );
+    }
+  };
+
+  loadPaymentHistory();
+}, [
+  fetchCurrentCustomer,
+  fetchPaymentAttemptsByCustomerId,
+]);
 
   if (loadingPaymentAttempts) {
     return (

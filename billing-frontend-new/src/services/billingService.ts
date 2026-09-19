@@ -1,6 +1,4 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:8083";
+import api from "./api";
 
 export interface Plan {
   id: number;
@@ -16,8 +14,8 @@ export interface PlanRequest {
 }
 
 export const getPlans = async (): Promise<Plan[]> => {
-  const response = await axios.get<Plan[]>(
-    `${API_URL}/api/plans`
+  const response = await api.get<Plan[]>(
+    `/api/plans`
   );
 
   return response.data;
@@ -26,8 +24,8 @@ export const getPlans = async (): Promise<Plan[]> => {
 export const createPlan = async (
   plan: PlanRequest
 ): Promise<Plan> => {
-  const response = await axios.post<Plan>(
-    `${API_URL}/api/plans`,
+  const response = await api.post<Plan>(
+    `/api/plans`,
     plan
   );
 
@@ -38,8 +36,8 @@ export const updatePlan = async (
   id: number,
   plan: PlanRequest
 ): Promise<Plan> => {
-  const response = await axios.put<Plan>(
-    `${API_URL}/api/plans/${id}`,
+  const response = await api.put<Plan>(
+    `/api/plans/${id}`,
     plan
   );
 
@@ -49,8 +47,8 @@ export const updatePlan = async (
 export const deletePlan = async (
   id: number
 ): Promise<void> => {
-  await axios.delete(
-    `${API_URL}/api/plans/${id}`
+  await api.delete(
+    `/api/plans/${id}`
   );
 };
 
@@ -73,8 +71,8 @@ export interface SubscriptionRequest {
 }
 
 export const getSubscriptions = async (): Promise<Subscription[]> => {
-  const response = await axios.get<Subscription[]>(
-    `${API_URL}/api/subscriptions`
+  const response = await api.get<Subscription[]>(
+    `/api/subscriptions`
   );
 
   return response.data;
@@ -83,8 +81,8 @@ export const getSubscriptions = async (): Promise<Subscription[]> => {
 export const createSubscription = async (
   subscription: SubscriptionRequest
 ): Promise<Subscription> => {
-  const response = await axios.post<Subscription>(
-    `${API_URL}/api/subscriptions`,
+  const response = await api.post<Subscription>(
+    `/api/subscriptions`,
     subscription
   );
 
@@ -94,8 +92,8 @@ export const createSubscription = async (
 export const getSubscriptionById = async (
   id: number
 ): Promise<Subscription> => {
-  const response = await axios.get<Subscription>(
-    `${API_URL}/api/subscriptions/${id}`
+  const response = await api.get<Subscription>(
+    `/api/subscriptions/${id}`
   );
 
   return response.data;
@@ -104,8 +102,8 @@ export const getSubscriptionById = async (
 export const cancelSubscription = async (
   id: number
 ): Promise<Subscription> => {
-  const response = await axios.put<Subscription>(
-    `${API_URL}/api/subscriptions/${id}/cancel`
+  const response = await api.put<Subscription>(
+    `/api/subscriptions/${id}/cancel`
   );
 
   return response.data;
@@ -114,11 +112,21 @@ export const cancelSubscription = async (
 export const getSubscriptionsByCustomerId = async (
   customerId: number
 ): Promise<Subscription[]> => {
-  const response = await axios.get<Subscription[]>(
-    `${API_URL}/api/subscriptions/customer/${customerId}`
+  const response = await api.get<Subscription[]>(
+    `/api/subscriptions/customer/${customerId}`
   );
 
   return response.data;
+};
+
+export const getChurnRisk = async (
+    customerId: number
+): Promise<ChurnRisk> => {
+    const response = await api.get<ChurnRisk>(
+        `/api/churn-risk/customer/${customerId}`
+    );
+
+    return response.data;
 };
 
 
@@ -134,11 +142,12 @@ export interface Invoice {
   status: string;
   dueDate: string;
   paidAt: string | null;
+  receiptUrl: string | null;
 }
 
 export const getInvoices = async (): Promise<Invoice[]> => {
-  const response = await axios.get<Invoice[]>(
-    `${API_URL}/api/invoices`
+  const response = await api.get<Invoice[]>(
+    `/api/invoices`
   );
 
   return response.data;
@@ -147,8 +156,8 @@ export const getInvoices = async (): Promise<Invoice[]> => {
 export const getInvoiceById = async (
   id: number
 ): Promise<Invoice> => {
-  const response = await axios.get<Invoice>(
-    `${API_URL}/api/invoices/${id}`
+  const response = await api.get<Invoice>(
+    `/api/invoices/${id}`
   );
 
   return response.data;
@@ -157,8 +166,8 @@ export const getInvoiceById = async (
 export const getInvoicesByCustomerId = async (
   customerId: number
 ): Promise<Invoice[]> => {
-  const response = await axios.get<Invoice[]>(
-    `${API_URL}/api/invoices/customer/${customerId}`
+  const response = await api.get<Invoice[]>(
+    `/api/invoices/customer/${customerId}`
   );
 
   return response.data;
@@ -183,8 +192,8 @@ export interface PaymentAttempt {
 export const payInvoice = async (
   invoiceId: number
 ): Promise<Invoice> => {
-  const response = await axios.post<Invoice>(
-    `${API_URL}/api/invoices/${invoiceId}/payment`,
+  const response = await api.post<Invoice>(
+    `/api/invoices/${invoiceId}/payment`,
     {
       status: "SUCCESS",
     }
@@ -196,8 +205,8 @@ export const payInvoice = async (
 export const getPaymentAttempts =
   async (): Promise<PaymentAttempt[]> => {
     const response =
-      await axios.get<PaymentAttempt[]>(
-        `${API_URL}/api/payment-attempts`
+      await api.get<PaymentAttempt[]>(
+        `/api/payment-attempts`
       );
 
     return response.data;
@@ -206,8 +215,8 @@ export const getPaymentAttempts =
 export const getPaymentAttemptsByCustomerId = async (
   customerId: number
 ): Promise<PaymentAttempt[]> => {
-  const response = await axios.get<PaymentAttempt[]>(
-    `${API_URL}/api/payment-attempts/customer/${customerId}`
+  const response = await api.get<PaymentAttempt[]>(
+    `/api/payment-attempts/customer/${customerId}`
   );
 
   return response.data;
@@ -217,8 +226,8 @@ export const changeSubscriptionPlan = async (
   subscriptionId: number,
   planId: number
 ): Promise<Subscription> => {
-  const response = await axios.put<Subscription>(
-    `${API_URL}/api/subscriptions/${subscriptionId}/plan`,
+  const response = await api.put<Subscription>(
+    `/api/subscriptions/${subscriptionId}/plan`,
     {
       planId,
     }
@@ -226,3 +235,9 @@ export const changeSubscriptionPlan = async (
 
   return response.data;
 };
+
+export interface ChurnRisk {
+    customerId: number;
+    riskScore: number;
+    riskLevel: string;
+}

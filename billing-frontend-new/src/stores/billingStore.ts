@@ -16,10 +16,12 @@ import {
   payInvoice,
   getPaymentAttempts,
   getPaymentAttemptsByCustomerId,
+  getChurnRisk,
   type Plan,
   type Subscription,
   type Invoice,
   type PaymentAttempt,
+  type ChurnRisk,
 } from "../services/billingService";
 
 interface BillingState {
@@ -28,17 +30,31 @@ interface BillingState {
   invoices: Invoice[];
   paymentAttempts: PaymentAttempt[];
 
+  /*
+   * Churn risks are now stored for multiple customers.
+   *
+   * Example:
+   * {
+   *   1: { customerId: 1, riskScore: 20, riskLevel: "LOW" },
+   *   2: { customerId: 2, riskScore: 75, riskLevel: "HIGH" }
+   * }
+   */
+  churnRisks: Record<number, ChurnRisk>;
+
   loadingPlans: boolean;
   loadingSubscriptions: boolean;
   loadingInvoices: boolean;
   loadingPaymentAttempts: boolean;
+  loadingChurnRisk: boolean;
 
   plansError: string | null;
   subscriptionsError: string | null;
   invoicesError: string | null;
   paymentAttemptsError: string | null;
+  churnRiskError: string | null;
 
   /* PLANS */
+
   fetchPlans: () => Promise<void>;
 
   createPlan: (plan: {
@@ -59,6 +75,7 @@ interface BillingState {
   deletePlan: (id: number) => Promise<void>;
 
   /* SUBSCRIPTIONS */
+
   fetchSubscriptions: () => Promise<void>;
 
   fetchSubscriptionsByCustomerId: (
@@ -70,15 +87,19 @@ interface BillingState {
     planId: number;
   }) => Promise<void>;
 
-  cancelSubscription: (id: number) => Promise<void>;
+  cancelSubscription: (
+    id: number
+  ) => Promise<void>;
 
-   changeSubscriptionPlan: (
+  changeSubscriptionPlan: (
     id: number,
     planId: number
   ) => Promise<void>;
 
   /* INVOICES */
+
   fetchInvoices: () => Promise<void>;
+
   fetchInvoiceById: (
     id: number
   ) => Promise<Invoice | null>;
@@ -87,13 +108,26 @@ interface BillingState {
     customerId: number
   ) => Promise<void>;
 
-  payInvoice: (invoiceId: number) => Promise<void>;
+  payInvoice: (
+    invoiceId: number
+  ) => Promise<void>;
 
   /* PAYMENT ATTEMPTS */
+
   fetchPaymentAttempts: () => Promise<void>;
 
   fetchPaymentAttemptsByCustomerId: (
     customerId: number
+  ) => Promise<void>;
+
+  /* CHURN RISK */
+
+  fetchChurnRisk: (
+    customerId: number
+  ) => Promise<void>;
+
+  fetchChurnRisks: (
+    customerIds: number[]
   ) => Promise<void>;
 }
 
@@ -103,19 +137,23 @@ const useBillingStore = create<BillingState>((set) => ({
   invoices: [],
   paymentAttempts: [],
 
+  churnRisks: {},
+
   loadingPlans: false,
   loadingSubscriptions: false,
   loadingInvoices: false,
   loadingPaymentAttempts: false,
+  loadingChurnRisk: false,
 
   plansError: null,
   subscriptionsError: null,
   invoicesError: null,
   paymentAttemptsError: null,
+  churnRiskError: null,
 
-  /* =========================
+  /* =========================================================
      PLANS
-     ========================= */
+     ========================================================= */
 
   fetchPlans: async () => {
     set({
@@ -131,7 +169,10 @@ const useBillingStore = create<BillingState>((set) => ({
         loadingPlans: false,
       });
     } catch (error) {
-      console.error("Failed to load plans:", error);
+      console.error(
+        "Failed to load plans:",
+        error
+      );
 
       set({
         loadingPlans: false,
@@ -145,27 +186,40 @@ const useBillingStore = create<BillingState>((set) => ({
       const newPlan = await createPlan(plan);
 
       set((state) => ({
-        plans: [...state.plans, newPlan],
+        plans: [
+          ...state.plans,
+          newPlan,
+        ],
       }));
     } catch (error) {
-      console.error("Failed to create plan:", error);
+      console.error(
+        "Failed to create plan:",
+        error
+      );
+
       throw error;
     }
   },
 
   updatePlan: async (id, plan) => {
     try {
-      const updatedPlan = await updatePlan(id, plan);
+      const updatedPlan =
+        await updatePlan(id, plan);
 
       set((state) => ({
-        plans: state.plans.map((existingPlan) =>
-          existingPlan.id === id
-            ? updatedPlan
-            : existingPlan
+        plans: state.plans.map(
+          (existingPlan) =>
+            existingPlan.id === id
+              ? updatedPlan
+              : existingPlan
         ),
       }));
     } catch (error) {
-      console.error("Failed to update plan:", error);
+      console.error(
+        "Failed to update plan:",
+        error
+      );
+
       throw error;
     }
   },
@@ -180,14 +234,18 @@ const useBillingStore = create<BillingState>((set) => ({
         ),
       }));
     } catch (error) {
-      console.error("Failed to delete plan:", error);
+      console.error(
+        "Failed to delete plan:",
+        error
+      );
+
       throw error;
     }
   },
 
-  /* =========================
+  /* =========================================================
      SUBSCRIPTIONS
-     ========================= */
+     ========================================================= */
 
   fetchSubscriptions: async () => {
     set({
@@ -196,7 +254,8 @@ const useBillingStore = create<BillingState>((set) => ({
     });
 
     try {
-      const subscriptions = await getSubscriptions();
+      const subscriptions =
+        await getSubscriptions();
 
       set({
         subscriptions,
@@ -226,7 +285,9 @@ const useBillingStore = create<BillingState>((set) => ({
 
     try {
       const subscriptions =
-        await getSubscriptionsByCustomerId(customerId);
+        await getSubscriptionsByCustomerId(
+          customerId
+        );
 
       set({
         subscriptions,
@@ -246,10 +307,14 @@ const useBillingStore = create<BillingState>((set) => ({
     }
   },
 
-  createSubscription: async (subscription) => {
+  createSubscription: async (
+    subscription
+  ) => {
     try {
       const newSubscription =
-        await createSubscription(subscription);
+        await createSubscription(
+          subscription
+        );
 
       set((state) => ({
         subscriptions: [
@@ -273,12 +338,13 @@ const useBillingStore = create<BillingState>((set) => ({
         await cancelSubscription(id);
 
       set((state) => ({
-        subscriptions: state.subscriptions.map(
-          (subscription) =>
-            subscription.id === id
-              ? updatedSubscription
-              : subscription
-        ),
+        subscriptions:
+          state.subscriptions.map(
+            (subscription) =>
+              subscription.id === id
+                ? updatedSubscription
+                : subscription
+          ),
       }));
     } catch (error) {
       console.error(
@@ -290,31 +356,39 @@ const useBillingStore = create<BillingState>((set) => ({
     }
   },
 
-   changeSubscriptionPlan: async (id, planId) => {
+  changeSubscriptionPlan: async (
+    id,
+    planId
+  ) => {
     try {
       const updatedSubscription =
-        await changeSubscriptionPlan(id, planId);
+        await changeSubscriptionPlan(
+          id,
+          planId
+        );
 
       set((state) => ({
-        subscriptions: state.subscriptions.map(
-          (subscription) =>
-            subscription.id === id
-              ? updatedSubscription
-              : subscription
-        ),
+        subscriptions:
+          state.subscriptions.map(
+            (subscription) =>
+              subscription.id === id
+                ? updatedSubscription
+                : subscription
+          ),
       }));
     } catch (error) {
       console.error(
         "Failed to change subscription plan:",
         error
       );
+
       throw error;
     }
   },
 
-  /* =========================
+  /* =========================================================
      INVOICES
-     ========================= */
+     ========================================================= */
 
   fetchInvoices: async () => {
     set({
@@ -323,7 +397,8 @@ const useBillingStore = create<BillingState>((set) => ({
     });
 
     try {
-      const invoices = await getInvoices();
+      const invoices =
+        await getInvoices();
 
       set({
         invoices,
@@ -343,24 +418,32 @@ const useBillingStore = create<BillingState>((set) => ({
     }
   },
 
-   fetchInvoiceById: async (id) => {
+  fetchInvoiceById: async (id) => {
     try {
-      const invoice = await getInvoiceById(id);
+      const invoice =
+        await getInvoiceById(id);
 
       set((state) => {
-        const exists = state.invoices.some(
-          (existingInvoice) =>
-            existingInvoice.id === invoice.id
-        );
+        const exists =
+          state.invoices.some(
+            (existingInvoice) =>
+              existingInvoice.id ===
+              invoice.id
+          );
 
         return {
           invoices: exists
-            ? state.invoices.map((existingInvoice) =>
-                existingInvoice.id === invoice.id
-                  ? invoice
-                  : existingInvoice
+            ? state.invoices.map(
+                (existingInvoice) =>
+                  existingInvoice.id ===
+                  invoice.id
+                    ? invoice
+                    : existingInvoice
               )
-            : [...state.invoices, invoice],
+            : [
+                ...state.invoices,
+                invoice,
+              ],
         };
       });
 
@@ -375,7 +458,9 @@ const useBillingStore = create<BillingState>((set) => ({
     }
   },
 
-  fetchInvoicesByCustomerId: async (customerId) => {
+  fetchInvoicesByCustomerId: async (
+    customerId
+  ) => {
     set({
       loadingInvoices: true,
       invoicesError: null,
@@ -383,7 +468,9 @@ const useBillingStore = create<BillingState>((set) => ({
 
     try {
       const invoices =
-        await getInvoicesByCustomerId(customerId);
+        await getInvoicesByCustomerId(
+          customerId
+        );
 
       set({
         invoices,
@@ -409,11 +496,13 @@ const useBillingStore = create<BillingState>((set) => ({
         await payInvoice(invoiceId);
 
       set((state) => ({
-        invoices: state.invoices.map((invoice) =>
-          invoice.id === invoiceId
-            ? updatedInvoice
-            : invoice
-        ),
+        invoices:
+          state.invoices.map(
+            (invoice) =>
+              invoice.id === invoiceId
+                ? updatedInvoice
+                : invoice
+          ),
       }));
     } catch (error) {
       console.error(
@@ -425,9 +514,9 @@ const useBillingStore = create<BillingState>((set) => ({
     }
   },
 
-  /* =========================
+  /* =========================================================
      PAYMENT ATTEMPTS
-     ========================= */
+     ========================================================= */
 
   fetchPaymentAttempts: async () => {
     set({
@@ -457,34 +546,127 @@ const useBillingStore = create<BillingState>((set) => ({
     }
   },
 
-  fetchPaymentAttemptsByCustomerId: async (
-    customerId
-  ) => {
+  fetchPaymentAttemptsByCustomerId:
+    async (customerId) => {
+      set({
+        loadingPaymentAttempts: true,
+        paymentAttemptsError: null,
+      });
+
+      try {
+        const paymentAttempts =
+          await getPaymentAttemptsByCustomerId(
+            customerId
+          );
+
+        set({
+          paymentAttempts,
+          loadingPaymentAttempts: false,
+        });
+      } catch (error) {
+        console.error(
+          "Failed to load customer payment attempts:",
+          error
+        );
+
+        set({
+          loadingPaymentAttempts: false,
+          paymentAttemptsError:
+            "Failed to load customer payment attempts.",
+        });
+      }
+    },
+
+  /* =========================================================
+     CHURN RISK
+     ========================================================= */
+
+  fetchChurnRisk: async (customerId) => {
     set({
-      loadingPaymentAttempts: true,
-      paymentAttemptsError: null,
+      loadingChurnRisk: true,
+      churnRiskError: null,
     });
 
     try {
-      const paymentAttempts =
-        await getPaymentAttemptsByCustomerId(
-          customerId
-        );
+      const churnRisk =
+        await getChurnRisk(customerId);
 
-      set({
-        paymentAttempts,
-        loadingPaymentAttempts: false,
-      });
+      set((state) => ({
+        churnRisks: {
+          ...state.churnRisks,
+          [customerId]: churnRisk,
+        },
+        loadingChurnRisk: false,
+      }));
     } catch (error) {
       console.error(
-        "Failed to load customer payment attempts:",
+        `Failed to load churn risk for customer ${customerId}:`,
         error
       );
 
       set({
-        loadingPaymentAttempts: false,
-        paymentAttemptsError:
-          "Failed to load customer payment attempts.",
+        loadingChurnRisk: false,
+        churnRiskError:
+          "Failed to load churn risk.",
+      });
+    }
+  },
+
+  fetchChurnRisks: async (
+    customerIds
+  ) => {
+    set({
+      loadingChurnRisk: true,
+      churnRiskError: null,
+    });
+
+    try {
+      const uniqueCustomerIds =
+        [...new Set(customerIds)];
+
+      const results =
+        await Promise.all(
+          uniqueCustomerIds.map(
+            async (customerId) => {
+              const result =
+                await getChurnRisk(
+                  customerId
+                );
+
+              return {
+                customerId,
+                result,
+              };
+            }
+          )
+        );
+
+      const churnRisks: Record<
+        number,
+        ChurnRisk
+      > = {};
+
+      results.forEach(
+        ({ customerId, result }) => {
+          churnRisks[customerId] =
+            result;
+        }
+      );
+
+      set({
+        churnRisks,
+        loadingChurnRisk: false,
+      });
+    } catch (error) {
+      console.error(
+        "Failed to load churn risks:",
+        error
+      );
+
+      set({
+        loadingChurnRisk: false,
+        churnRiskError:
+          "Failed to load churn risks.",
       });
     }
   },

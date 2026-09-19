@@ -4,11 +4,14 @@ import { useNavigate } from "@tanstack/react-router";
 import "./UserDashboard.css";
 
 import useBillingStore from "../../stores/billingStore";
+import useCustomerStore from "../../stores/customerStore";
 
 function UserDashboard() {
   const navigate = useNavigate();
 
-  const customerId = 2;
+  const fetchCurrentCustomer = useCustomerStore(
+    (state) => state.fetchCurrentCustomer
+  );
 
   const {
     plans,
@@ -26,10 +29,45 @@ function UserDashboard() {
   } = useBillingStore();
 
   useEffect(() => {
-    fetchPlans();
-    fetchSubscriptionsByCustomerId(customerId);
-    fetchInvoicesByCustomerId(customerId);
+    const loadDashboard = async () => {
+      try {
+        let customer =
+          useCustomerStore.getState().currentCustomer;
+
+        if (!customer) {
+          customer = await fetchCurrentCustomer();
+        }
+
+        if (!customer) {
+          console.error(
+            "No current customer found."
+          );
+
+          return;
+        }
+
+        await Promise.all([
+          fetchPlans(),
+
+          fetchSubscriptionsByCustomerId(
+            customer.id
+          ),
+
+          fetchInvoicesByCustomerId(
+            customer.id
+          ),
+        ]);
+      } catch (error) {
+        console.error(
+          "Failed to load dashboard:",
+          error
+        );
+      }
+    };
+
+    loadDashboard();
   }, [
+    fetchCurrentCustomer,
     fetchPlans,
     fetchSubscriptionsByCustomerId,
     fetchInvoicesByCustomerId,
@@ -45,7 +83,27 @@ function UserDashboard() {
     subscriptionsError ||
     invoicesError;
 
-  const subscription = subscriptions[0];
+  /*
+   * PREFER THE ACTIVE SUBSCRIPTION.
+   *
+   * If there is no active subscription,
+   * show the latest subscription instead.
+   *
+   * This prevents the dashboard from randomly
+   * displaying Basic after another plan is canceled.
+   */
+  const activeSubscription =
+    subscriptions.find(
+      (subscription) =>
+        subscription.status.toUpperCase() === "ACTIVE"
+    ) || null;
+
+  const latestSubscription =
+    [...subscriptions]
+      .sort((a, b) => b.id - a.id)[0] || null;
+
+  const subscription =
+    activeSubscription || latestSubscription;
 
   const currentPlan = plans.find(
     (plan) => plan.id === subscription?.planId
@@ -65,9 +123,13 @@ function UserDashboard() {
     return new Date(date).toLocaleDateString();
   };
 
+  /*
+   * OUTSTANDING BALANCE
+   */
   const outstandingAmount = invoices
     .filter(
-      (invoice) => invoice.status === "PENDING"
+      (invoice) =>
+        invoice.status === "PENDING"
     )
     .reduce(
       (total, invoice) =>
@@ -75,12 +137,21 @@ function UserDashboard() {
       0
     );
 
+  /*
+   * NEXT PAYMENT
+   *
+   * Only an ACTIVE subscription can have
+   * an upcoming payment.
+   */
   const nextInvoice =
-    subscription?.status === "ACTIVE"
+    subscription?.status?.toUpperCase() ===
+    "ACTIVE"
       ? invoices
           .filter(
             (invoice) =>
-              invoice.status === "PENDING"
+              invoice.status === "PENDING" &&
+              invoice.subscriptionId ===
+                subscription.id
           )
           .sort(
             (a, b) =>
@@ -88,6 +159,13 @@ function UserDashboard() {
               new Date(b.dueDate).getTime()
           )[0]
       : null;
+
+  const nextPaymentAmount =
+    nextInvoice?.amountCents ??
+    (subscription?.status?.toUpperCase() ===
+    "ACTIVE"
+      ? currentPlan?.priceCents ?? 0
+      : 0);
 
   if (loading) {
     return (
@@ -101,6 +179,7 @@ function UserDashboard() {
     return (
       <main className="user-dashboard-page">
         <h1>Unable to load dashboard</h1>
+
         <p>{error}</p>
       </main>
     );
@@ -129,7 +208,6 @@ function UserDashboard() {
         {/* CURRENT PLAN */}
 
         <div className="user-dashboard-card">
-
           <span className="card-label">
             Current Plan
           </span>
@@ -143,13 +221,11 @@ function UserDashboard() {
               ? `${currentPlan.billingCycle.toLowerCase()} subscription`
               : "No subscription"}
           </span>
-
         </div>
 
         {/* SUBSCRIPTION STATUS */}
 
         <div className="user-dashboard-card">
-
           <span className="card-label">
             Subscription Status
           </span>
@@ -164,23 +240,17 @@ function UserDashboard() {
               ? `Your subscription is ${subscription.status.toLowerCase()}`
               : "No active subscription"}
           </span>
-
         </div>
 
         {/* NEXT PAYMENT */}
 
         <div className="user-dashboard-card">
-
           <span className="card-label">
             Next Payment
           </span>
 
           <strong className="card-value">
-            {nextInvoice
-              ? formatMoney(
-                  nextInvoice.amountCents
-                )
-              : "ETB 0.00"}
+            {formatMoney(nextPaymentAmount)}
           </strong>
 
           <span className="card-description">
@@ -188,15 +258,18 @@ function UserDashboard() {
               ? `Due ${formatDate(
                   nextInvoice.dueDate
                 )}`
+              : subscription?.status?.toUpperCase() ===
+                "ACTIVE"
+              ? `Due ${formatDate(
+                  subscription.currentPeriodEnd
+                )}`
               : "No upcoming payment"}
           </span>
-
         </div>
 
         {/* OUTSTANDING */}
 
         <div className="user-dashboard-card">
-
           <span className="card-label">
             Outstanding
           </span>
@@ -210,7 +283,6 @@ function UserDashboard() {
               ? "Payment required"
               : "No outstanding balance"}
           </span>
-
         </div>
 
       </div>
@@ -220,7 +292,6 @@ function UserDashboard() {
       <section className="user-dashboard-section">
 
         <div className="user-section-header">
-
           <div>
             <h2>My Subscription</h2>
 
@@ -228,7 +299,6 @@ function UserDashboard() {
               Your current subscription details.
             </p>
           </div>
-
         </div>
 
         <div className="subscription-card">
@@ -262,9 +332,12 @@ function UserDashboard() {
             <span>Next Billing Date</span>
 
             <strong>
-              {formatDate(
-                subscription?.currentPeriodEnd
-              )}
+              {subscription?.status?.toUpperCase() ===
+              "ACTIVE"
+                ? formatDate(
+                    subscription.currentPeriodEnd
+                  )
+                : "No upcoming billing"}
             </strong>
           </div>
 

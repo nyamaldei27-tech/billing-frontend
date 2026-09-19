@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useForm } from "@tanstack/react-form";
 
 import useCustomerStore from "../../stores/customerStore";
 import type { Customer } from "../../services/customerService";
@@ -15,172 +16,191 @@ function Customers() {
     removeCustomer,
   } = useCustomerStore();
 
-  // ----------------------------------------
   // ADD CUSTOMER
-  // ----------------------------------------
+  const [showAddForm, setShowAddForm] = useState(false);
 
-  const [showAddForm, setShowAddForm] =
-    useState(false);
+  const middleNameRef = useRef<HTMLInputElement>(null);
+  const lastNameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
 
-  const [firstName, setFirstName] =
-    useState("");
-
-  const [middleName, setMiddleName] =
-    useState("");
-
-  const [lastName, setLastName] =
-    useState("");
-
-  const [email, setEmail] =
-    useState("");
-
-  const middleNameRef =
-    useRef<HTMLInputElement>(null);
-
-  const lastNameRef =
-    useRef<HTMLInputElement>(null);
-
-  const emailRef =
-    useRef<HTMLInputElement>(null);
-
-  // ----------------------------------------
   // CUSTOMER COUNTER
-  // ----------------------------------------
+  const [customersAdded, setCustomersAdded] = useState(0);
 
-  const [customersAdded, setCustomersAdded] =
-    useState(0);
-
-  // ----------------------------------------
   // THREE DOT MENU
-  // ----------------------------------------
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
-  const [openMenuId, setOpenMenuId] =
-    useState<number | null>(null);
-
-  // ----------------------------------------
   // SEARCH
-  // ----------------------------------------
+  const [searchTerm, setSearchTerm] = useState("");
+  const [customersLoaded, setCustomersLoaded] = useState(false);
 
-  const [searchTerm, setSearchTerm] =
-    useState("");
-
-  const [customersLoaded, setCustomersLoaded] =
-    useState(false);
-
-  // ----------------------------------------
   // VIEW CUSTOMER
-  // ----------------------------------------
-
   const [selectedCustomer, setSelectedCustomer] =
     useState<Customer | null>(null);
+  const [showCustomerDetails, setShowCustomerDetails] = useState(false);
 
-  const [showCustomerDetails, setShowCustomerDetails] =
-    useState(false);
-
-  // ----------------------------------------
   // EDIT CUSTOMER
-  // ----------------------------------------
-
   const [editingCustomer, setEditingCustomer] =
     useState<Customer | null>(null);
+  const [showEditForm, setShowEditForm] = useState(false);
 
-  const [editFirstName, setEditFirstName] =
-    useState("");
-
-  const [editMiddleName, setEditMiddleName] =
-    useState("");
-
-  const [editLastName, setEditLastName] =
-    useState("");
-
-  const [editEmail, setEditEmail] =
-    useState("");
-
-  const [showEditForm, setShowEditForm] =
-    useState(false);
-
+  // MENU DIRECTION
   const [menuDirection, setMenuDirection] =
     useState<"down" | "up">("down");
 
-  // ----------------------------------------
-  // CAPITALIZE NAMES
-  // ----------------------------------------
+  // --------------------------------------------------
+  // HELPER
+  // --------------------------------------------------
 
-  const capitalizeName = (
-    value: string
-  ) => {
+  const capitalizeName = (value: string) => {
     return value
-      .split(" ")
-      .map((word) => {
-        if (!word) {
-          return "";
+      .trimStart()
+      .replace(/\s+/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
+  // --------------------------------------------------
+  // ADD CUSTOMER FORM
+  // --------------------------------------------------
+
+  const addCustomerForm = useForm({
+    defaultValues: {
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      email: "",
+    },
+
+    onSubmit: async ({ value }) => {
+      try {
+        await addCustomer({
+          firstName: capitalizeName(value.firstName.trim()),
+          middleName: value.middleName.trim()
+            ? capitalizeName(value.middleName.trim())
+            : "",
+          lastName: capitalizeName(value.lastName.trim()),
+          email: value.email.trim(),
+        });
+
+        setCustomersAdded((count) => count + 1);
+        setCustomersLoaded(true);
+
+        addCustomerForm.reset();
+        setShowAddForm(false);
+      } catch (err) {
+        alert(
+          err instanceof Error
+            ? err.message
+            : "Failed to create customer"
+        );
+      }
+    },
+  });
+
+  // --------------------------------------------------
+  // EDIT CUSTOMER FORM
+  // --------------------------------------------------
+
+  const editCustomerForm = useForm({
+    defaultValues: {
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      email: "",
+    },
+
+    onSubmit: async ({ value }) => {
+      if (!editingCustomer) {
+        return;
+      }
+
+      try {
+        const updatedCustomer = await editCustomer(
+          editingCustomer.id,
+          {
+            firstName: capitalizeName(value.firstName.trim()),
+            middleName: value.middleName.trim()
+              ? capitalizeName(value.middleName.trim())
+              : "",
+            lastName: capitalizeName(value.lastName.trim()),
+            email: value.email.trim(),
+          }
+        );
+
+        if (
+          selectedCustomer &&
+          selectedCustomer.id === editingCustomer.id
+        ) {
+          setSelectedCustomer(updatedCustomer);
         }
 
-        return (
-          word.charAt(0).toUpperCase() +
-          word.slice(1).toLowerCase()
+        setEditingCustomer(null);
+        setShowEditForm(false);
+        editCustomerForm.reset();
+      } catch (err) {
+        alert(
+          err instanceof Error
+            ? err.message
+            : "Failed to update customer"
         );
-      })
-      .join(" ");
-  };
+      }
+    },
+  });
 
-  // ----------------------------------------
-  // GET ALL CUSTOMERS
-  // ----------------------------------------
+  // --------------------------------------------------
+  // LOAD CUSTOMERS
+  // --------------------------------------------------
 
   const getCustomers = async () => {
-    setOpenMenuId(null);
-
     try {
       await fetchCustomers();
-
       setCustomersLoaded(true);
     } catch {
-      setCustomersLoaded(false);
+      // Store handles the error state.
     }
   };
 
-  // ----------------------------------------
-  // HIDE CUSTOMER LIST
-  // ----------------------------------------
+  // --------------------------------------------------
+  // REMOVE CUSTOMER FROM LIST
+  // --------------------------------------------------
 
-  const removeCustomerList = () => {
-    setSearchTerm("");
-    setCustomersLoaded(false);
-    setOpenMenuId(null);
-  };
-
-  // ----------------------------------------
-  // GET ONE CUSTOMER
-  // ----------------------------------------
-
-  const getCustomer = async (
-    id: number
-  ) => {
-    setOpenMenuId(null);
-
+  const removeCustomerList = async (id: number) => {
     try {
-      const customer =
-        await fetchCustomerById(id);
-
-      if (customer) {
-        setSelectedCustomer(customer);
-        setShowCustomerDetails(true);
-      }
-    } catch {
-      // Error is handled by customerStore.
+      await removeCustomer(id);
+      setOpenMenuId(null);
+    } catch (err) {
+      alert(
+        err instanceof Error
+          ? err.message
+          : "Failed to delete customer"
+      );
     }
   };
 
-  // ----------------------------------------
+  // --------------------------------------------------
+  // VIEW CUSTOMER
+  // --------------------------------------------------
+
+  const getCustomer = async (id: number) => {
+    try {
+      const customer = await fetchCustomerById(id);
+
+      setSelectedCustomer(customer);
+      setShowCustomerDetails(true);
+      setOpenMenuId(null);
+    } catch (err) {
+      alert(
+        err instanceof Error
+          ? err.message
+          : "Failed to load customer"
+      );
+    }
+  };
+
+  // --------------------------------------------------
   // DELETE CUSTOMER
-  // ----------------------------------------
+  // --------------------------------------------------
 
-  const deleteCustomer = async (
-    id: number
-  ) => {
-    setOpenMenuId(null);
-
+  const deleteCustomer = async (id: number) => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this customer?"
     );
@@ -189,930 +209,918 @@ function Customers() {
       return;
     }
 
-    try {
-      await removeCustomer(id);
+    await removeCustomerList(id);
 
-      if (
-        selectedCustomer?.id === id
-      ) {
-        setSelectedCustomer(null);
-        setShowCustomerDetails(false);
-      }
-    } catch {
-      // Error is handled by customerStore.
+    if (selectedCustomer?.id === id) {
+      setSelectedCustomer(null);
+      setShowCustomerDetails(false);
     }
   };
 
-  // ----------------------------------------
-  // CREATE CUSTOMER
-  // ----------------------------------------
+  // --------------------------------------------------
+  // OPEN EDIT CUSTOMER
+  // --------------------------------------------------
 
-  const createCustomer = async () => {
-    const customer = {
-      firstName:
-        capitalizeName(firstName),
-
-      middleName: middleName
-        ? capitalizeName(middleName)
-        : "",
-
-      lastName:
-        capitalizeName(lastName),
-
-      email: email.trim(),
-    };
-
-    try {
-      await addCustomer(customer);
-
-      setCustomersAdded(
-        (count) => count + 1
-      );
-
-      setFirstName("");
-      setMiddleName("");
-      setLastName("");
-      setEmail("");
-
-      setShowAddForm(false);
-
-      setCustomersLoaded(true);
-    } catch {
-      // Error is handled by customerStore.
-    }
-  };
-
-  // ----------------------------------------
-  // START EDITING CUSTOMER
-  // ----------------------------------------
-
-  const startEditingCustomer = (
-    customer: Customer
-  ) => {
+  const startEditingCustomer = (customer: Customer) => {
     setEditingCustomer(customer);
 
-    setEditFirstName(
+    editCustomerForm.reset();
+
+    editCustomerForm.setFieldValue(
+      "firstName",
       customer.firstName
     );
 
-    setEditMiddleName(
-      customer.middleName || ""
+    editCustomerForm.setFieldValue(
+      "middleName",
+      customer.middleName ?? ""
     );
 
-    setEditLastName(
+    editCustomerForm.setFieldValue(
+      "lastName",
       customer.lastName
     );
 
-    setEditEmail(
+    editCustomerForm.setFieldValue(
+      "email",
       customer.email
     );
 
-    setOpenMenuId(null);
     setShowEditForm(true);
+    setOpenMenuId(null);
   };
 
-  // ----------------------------------------
-  // UPDATE CUSTOMER
-  // ----------------------------------------
-
-  const updateCustomer = async () => {
-    if (!editingCustomer) {
-      return;
-    }
-
-    const updatedCustomer = {
-      firstName:
-        capitalizeName(editFirstName),
-
-      middleName: editMiddleName
-        ? capitalizeName(editMiddleName)
-        : "",
-
-      lastName:
-        capitalizeName(editLastName),
-
-      email: editEmail.trim(),
-    };
-
-    try {
-      const updated =
-        await editCustomer(
-          editingCustomer.id,
-          updatedCustomer
-        );
-
-      setSelectedCustomer(
-        (current) =>
-          current?.id === updated.id
-            ? updated
-            : current
-      );
-
-      setEditingCustomer(null);
-      setShowEditForm(false);
-    } catch {
-      // Error is handled by customerStore.
-    }
-  };
-
-  // ----------------------------------------
+  // --------------------------------------------------
   // FILTER CUSTOMERS
-  // ----------------------------------------
+  // --------------------------------------------------
 
-  const filteredCustomers =
-    customers.filter((customer) => {
-      const search =
-        searchTerm
-          .toLowerCase()
-          .trim();
+  const filteredCustomers = customers.filter((customer) => {
+    const search = searchTerm.toLowerCase();
 
-      const fullName =
-        `${customer.firstName} ${
-          customer.middleName ?? ""
-        } ${
-          customer.lastName
-        }`.toLowerCase();
+    return (
+      customer.firstName.toLowerCase().includes(search) ||
+      (customer.middleName ?? "")
+        .toLowerCase()
+        .includes(search) ||
+      customer.lastName.toLowerCase().includes(search) ||
+      customer.email.toLowerCase().includes(search)
+    );
+  });
 
-      return (
-        fullName.includes(search) ||
-        customer.email
-          .toLowerCase()
-          .includes(search) ||
-        customer.id
-          .toString()
-          .includes(search)
-      );
-    });
+  // --------------------------------------------------
+  // CLOSE ADD MODAL
+  // --------------------------------------------------
 
-  // ----------------------------------------
-  // RETURN
-  // ----------------------------------------
+  const closeAddForm = () => {
+    addCustomerForm.reset();
+    setShowAddForm(false);
+  };
+
+  // --------------------------------------------------
+  // CLOSE EDIT MODAL
+  // --------------------------------------------------
+
+  const closeEditForm = () => {
+    editCustomerForm.reset();
+    setEditingCustomer(null);
+    setShowEditForm(false);
+  };
+
+  // --------------------------------------------------
+  // RENDER
+  // --------------------------------------------------
 
   return (
-    <main className="customers-page">
-
-      {/* ======================================
-          PAGE HEADER
-      ====================================== */}
-
+    <div className="customers-page">
+      {/* HEADER */}
       <div className="customers-header">
-
         <div>
           <h1>Customers</h1>
-
-          <p>
-            Manage your customers and account information.
-          </p>
+          <p>Manage your customers and their information.</p>
         </div>
 
         <div className="customer-actions">
-
-          {customersLoaded && (
-            <input
-              type="text"
-              className="customer-search"
-              placeholder="Search customer by name,id..."
-              value={searchTerm}
-              onChange={(event) =>
-                setSearchTerm(
-                  event.target.value
-                )
-              }
-            />
-          )}
-
           <button
-            type="button"
             className="primary-button"
             onClick={() => {
+              addCustomerForm.reset();
               setShowAddForm(true);
-              setOpenMenuId(null);
             }}
           >
-            + Add Customer
+            Add Customer
           </button>
 
+          <button
+            className="secondary-button"
+            onClick={getCustomers}
+            disabled={loading}
+          >
+            {loading ? "Loading..." : "Get Customers"}
+          </button>
         </div>
-
       </div>
 
-      {/* ======================================
-          ADD CUSTOMER MODAL
-      ====================================== */}
+      {/* SUMMARY */}
+      <div className="customer-summary">
+        <div className="summary-card">
+          <span className="summary-label">Total Customers</span>
+          <strong>{customers.length}</strong>
+        </div>
+
+        <div className="summary-card">
+          <span className="summary-label">Customers Added</span>
+          <strong>{customersAdded}</strong>
+        </div>
+      </div>
+
+      {/* CUSTOMER LIST */}
+      <div className="customers-card">
+        <div className="card-header">
+          <div>
+            <h2>Customer List</h2>
+            <p>
+              {customersLoaded
+                ? `${filteredCustomers.length} customer${
+                    filteredCustomers.length === 1 ? "" : "s"
+                  }`
+                : "Load customers to view the list"}
+            </p>
+          </div>
+
+          {customersLoaded && (
+            <div className="card-header-actions">
+              <input
+                className="customer-search"
+                type="text"
+                placeholder="Search customers..."
+                value={searchTerm}
+                onChange={(event) =>
+                  setSearchTerm(event.target.value)
+                }
+              />
+            </div>
+          )}
+        </div>
+
+        {error && (
+          <div className="error-message">
+            {error}
+          </div>
+        )}
+
+        {!customersLoaded ? (
+          <div className="empty-state">
+            <h3>No customers loaded</h3>
+            <p>
+              Click "Get Customers" to load your customers.
+            </p>
+          </div>
+        ) : filteredCustomers.length === 0 ? (
+          <div className="empty-state">
+            <h3>No customers found</h3>
+            <p>
+              Try changing your search or add a new customer.
+            </p>
+          </div>
+        ) : (
+          <div className="customers-table-wrapper">
+            <table className="customers-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>First Name</th>
+                  <th>Middle Name</th>
+                  <th>Last Name</th>
+                  <th>Email</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {filteredCustomers.map((customer, index) => (
+                  <tr key={customer.id}>
+                    <td>{customer.id}</td>
+
+                    <td>{customer.firstName}</td>
+
+                    <td>
+                      {customer.middleName || "—"}
+                    </td>
+
+                    <td>{customer.lastName}</td>
+
+                    <td>{customer.email}</td>
+
+                    <td>
+                      {new Date(
+                        customer.createdAt
+                      ).toLocaleDateString()}
+                    </td>
+
+                    <td className="customer-menu-cell">
+                      <button
+                        className="customer-menu-button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+
+                          if (openMenuId === customer.id) {
+                            setOpenMenuId(null);
+                            return;
+                          }
+
+                          setMenuDirection(
+                            index >=
+                              filteredCustomers.length - 2
+                              ? "up"
+                              : "down"
+                          );
+
+                          setOpenMenuId(customer.id);
+                        }}
+                      >
+                        ⋮
+                      </button>
+
+                      {openMenuId === customer.id && (
+                        <div
+                          className={`customer-menu ${
+                            menuDirection === "up"
+                              ? "customer-menu-up"
+                              : ""
+                          }`}
+                        >
+                          <button
+                            onClick={() =>
+                              getCustomer(customer.id)
+                            }
+                          >
+                            View
+                          </button>
+
+                          <button
+                            onClick={() =>
+                              startEditingCustomer(customer)
+                            }
+                          >
+                            Edit
+                          </button>
+
+                          <button
+                            className="danger"
+                            onClick={() =>
+                              deleteCustomer(customer.id)
+                            }
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* -------------------------------------------- */}
+      {/* ADD CUSTOMER MODAL */}
+      {/* -------------------------------------------- */}
 
       {showAddForm && (
-        <div className="modal-overlay">
-
-          <div className="modal-card">
-
+        <div
+          className="modal-overlay"
+          onClick={closeAddForm}
+        >
+          <div
+            className="modal-card"
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+          >
             <div className="modal-header">
-
               <div>
                 <h2>Add Customer</h2>
-
-                <p>
-                  Enter the customer's account information.
-                </p>
+                <p>Create a new customer account.</p>
               </div>
 
               <button
-                type="button"
                 className="modal-close-button"
-                onClick={() =>
-                  setShowAddForm(false)
-                }
+                onClick={closeAddForm}
               >
                 ×
               </button>
-
             </div>
 
-            <div className="customer-form">
+            <form
+              className="customer-form"
+              onSubmit={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                addCustomerForm.handleSubmit();
+              }}
+            >
+              {/* FIRST NAME */}
+              <addCustomerForm.Field
+                name="firstName"
+                validators={{
+                  onChange: ({ value }) => {
+                    const trimmed = value.trim();
 
-              <div className="form-group">
-
-                <label htmlFor="firstName">
-                  First Name
-                </label>
-
-                <input
-                  id="firstName"
-                  type="text"
-                  placeholder="Enter first name"
-                  value={firstName}
-                  autoFocus
-                  onChange={(event) =>
-                    setFirstName(
-                      capitalizeName(
-                        event.target.value
-                      )
-                    )
-                  }
-                  onKeyDown={(event) => {
-                    if (
-                      event.key === "Enter"
-                    ) {
-                      event.preventDefault();
-
-                      middleNameRef.current?.focus();
+                    if (!trimmed) {
+                      return "First name is required";
                     }
-                  }}
-                />
 
-              </div>
-
-              <div className="form-group">
-
-                <label htmlFor="middleName">
-                  Middle Name
-                </label>
-
-                <input
-                  id="middleName"
-                  ref={middleNameRef}
-                  type="text"
-                  placeholder="Enter middle name"
-                  value={middleName}
-                  onChange={(event) =>
-                    setMiddleName(
-                      capitalizeName(
-                        event.target.value
-                      )
-                    )
-                  }
-                  onKeyDown={(event) => {
-                    if (
-                      event.key === "Enter"
-                    ) {
-                      event.preventDefault();
-
-                      lastNameRef.current?.focus();
+                    if (trimmed.length < 2) {
+                      return "First name must be at least 2 characters";
                     }
-                  }}
-                />
 
-              </div>
+                    return undefined;
+                  },
+                }}
+              >
+                {(field) => (
+                  <div className="form-group">
+                    <label htmlFor="add-first-name">
+                      First Name
+                    </label>
 
-              <div className="form-group">
+                    <input
+                      id="add-first-name"
+                      type="text"
+                      value={field.state.value}
+                      onChange={(event) =>
+                        field.handleChange(
+                          capitalizeName(event.target.value)
+                        )
+                      }
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          event.preventDefault();
+                          middleNameRef.current?.focus();
+                        }
+                      }}
+                      onBlur={field.handleBlur}
+                      placeholder="First name"
+                    />
 
-                <label htmlFor="lastName">
-                  Last Name
-                </label>
+                    {field.state.meta.errors.length > 0 && (
+                      <p className="form-error">
+                        {field.state.meta.errors[0]}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </addCustomerForm.Field>
 
-                <input
-                  id="lastName"
-                  ref={lastNameRef}
-                  type="text"
-                  placeholder="Enter last name"
-                  value={lastName}
-                  onChange={(event) =>
-                    setLastName(
-                      capitalizeName(
-                        event.target.value
-                      )
-                    )
-                  }
-                  onKeyDown={(event) => {
+              {/* MIDDLE NAME */}
+              <addCustomerForm.Field
+                name="middleName"
+                validators={{
+                  onChange: ({ value }) => {
+                    const trimmed = value.trim();
+
                     if (
-                      event.key === "Enter"
+                      trimmed &&
+                      trimmed.length < 2
                     ) {
-                      event.preventDefault();
-
-                      emailRef.current?.focus();
+                      return "Middle name must be at least 2 characters";
                     }
-                  }}
-                />
 
-              </div>
+                    return undefined;
+                  },
+                }}
+              >
+                {(field) => (
+                  <div className="form-group">
+                    <label htmlFor="add-middle-name">
+                      Middle Name
+                    </label>
 
-              <div className="form-group">
+                    <input
+                      ref={middleNameRef}
+                      id="add-middle-name"
+                      type="text"
+                      value={field.state.value}
+                      onChange={(event) =>
+                        field.handleChange(
+                          capitalizeName(event.target.value)
+                        )
+                      }
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          event.preventDefault();
+                          lastNameRef.current?.focus();
+                        }
+                      }}
+                      onBlur={field.handleBlur}
+                      placeholder="Middle name (optional)"
+                    />
 
-                <label htmlFor="email">
-                  Email
-                </label>
+                    {field.state.meta.errors.length > 0 && (
+                      <p className="form-error">
+                        {field.state.meta.errors[0]}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </addCustomerForm.Field>
 
-                <input
-                  id="email"
-                  ref={emailRef}
-                  type="email"
-                  placeholder="Enter email address"
-                  value={email}
-                  onChange={(event) =>
-                    setEmail(
-                      event.target.value
-                    )
-                  }
-                  onKeyDown={(event) => {
-                    if (
-                      event.key === "Enter"
-                    ) {
-                      event.preventDefault();
+              {/* LAST NAME */}
+              <addCustomerForm.Field
+                name="lastName"
+                validators={{
+                  onChange: ({ value }) => {
+                    const trimmed = value.trim();
 
-                      createCustomer();
+                    if (!trimmed) {
+                      return "Last name is required";
                     }
-                  }}
-                />
 
-              </div>
+                    if (trimmed.length < 2) {
+                      return "Last name must be at least 2 characters";
+                    }
+
+                    return undefined;
+                  },
+                }}
+              >
+                {(field) => (
+                  <div className="form-group">
+                    <label htmlFor="add-last-name">
+                      Last Name
+                    </label>
+
+                    <input
+                      ref={lastNameRef}
+                      id="add-last-name"
+                      type="text"
+                      value={field.state.value}
+                      onChange={(event) =>
+                        field.handleChange(
+                          capitalizeName(event.target.value)
+                        )
+                      }
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          event.preventDefault();
+                          emailRef.current?.focus();
+                        }
+                      }}
+                      onBlur={field.handleBlur}
+                      placeholder="Last name"
+                    />
+
+                    {field.state.meta.errors.length > 0 && (
+                      <p className="form-error">
+                        {field.state.meta.errors[0]}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </addCustomerForm.Field>
+
+              {/* EMAIL */}
+              <addCustomerForm.Field
+                name="email"
+                validators={{
+                  onChange: ({ value }) => {
+                    const trimmed = value.trim();
+
+                    if (!trimmed) {
+                      return "Email is required";
+                    }
+
+                    const emailRegex =
+                      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                    if (!emailRegex.test(trimmed)) {
+                      return "Enter a valid email address";
+                    }
+
+                    return undefined;
+                  },
+                }}
+              >
+                {(field) => (
+                  <div className="form-group">
+                    <label htmlFor="add-email">
+                      Email
+                    </label>
+
+                    <input
+                      ref={emailRef}
+                      id="add-email"
+                      type="email"
+                      value={field.state.value}
+                      onChange={(event) =>
+                        field.handleChange(
+                          event.target.value
+                        )
+                      }
+                      onBlur={field.handleBlur}
+                      placeholder="customer@example.com"
+                    />
+
+                    {field.state.meta.errors.length > 0 && (
+                      <p className="form-error">
+                        {field.state.meta.errors[0]}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </addCustomerForm.Field>
 
               <div className="form-actions">
-
                 <button
                   type="button"
                   className="secondary-button"
-                  onClick={() =>
-                    setShowAddForm(false)
-                  }
+                  onClick={closeAddForm}
                 >
                   Cancel
                 </button>
 
                 <button
-                  type="button"
+                  type="submit"
                   className="primary-button"
-                  onClick={createCustomer}
+                  disabled={
+                    addCustomerForm.state.isSubmitting
+                  }
                 >
-                  Create Customer
+                  {addCustomerForm.state.isSubmitting
+                    ? "Creating..."
+                    : "Create Customer"}
                 </button>
-
               </div>
-
-            </div>
-
+            </form>
           </div>
-
         </div>
       )}
 
-      {/* ======================================
-          EDIT CUSTOMER MODAL
-      ====================================== */}
+      {/* -------------------------------------------- */}
+      {/* EDIT CUSTOMER MODAL */}
+      {/* -------------------------------------------- */}
 
-      {showEditForm &&
-        editingCustomer && (
-          <div className="modal-overlay">
-
-            <div className="modal-card">
-
-              <div className="modal-header">
-
-                <div>
-                  <h2>Edit Customer</h2>
-
-                  <p>
-                    Update this customer's account information.
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  className="modal-close-button"
-                  onClick={() => {
-                    setShowEditForm(false);
-                    setEditingCustomer(null);
-                  }}
-                >
-                  ×
-                </button>
-
+      {showEditForm && editingCustomer && (
+        <div
+          className="modal-overlay"
+          onClick={closeEditForm}
+        >
+          <div
+            className="modal-card"
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+          >
+            <div className="modal-header">
+              <div>
+                <h2>Edit Customer</h2>
+                <p>Update customer information.</p>
               </div>
 
-              <div className="customer-form">
-
-                <div className="form-group">
-
-                  <label htmlFor="editFirstName">
-                    First Name
-                  </label>
-
-                  <input
-                    id="editFirstName"
-                    type="text"
-                    value={editFirstName}
-                    autoFocus
-                    onChange={(event) =>
-                      setEditFirstName(
-                        capitalizeName(
-                          event.target.value
-                        )
-                      )
-                    }
-                  />
-
-                </div>
-
-                <div className="form-group">
-
-                  <label htmlFor="editMiddleName">
-                    Middle Name
-                  </label>
-
-                  <input
-                    id="editMiddleName"
-                    type="text"
-                    value={editMiddleName}
-                    onChange={(event) =>
-                      setEditMiddleName(
-                        capitalizeName(
-                          event.target.value
-                        )
-                      )
-                    }
-                  />
-
-                </div>
-
-                <div className="form-group">
-
-                  <label htmlFor="editLastName">
-                    Last Name
-                  </label>
-
-                  <input
-                    id="editLastName"
-                    type="text"
-                    value={editLastName}
-                    onChange={(event) =>
-                      setEditLastName(
-                        capitalizeName(
-                          event.target.value
-                        )
-                      )
-                    }
-                  />
-
-                </div>
-
-                <div className="form-group">
-
-                  <label htmlFor="editEmail">
-                    Email
-                  </label>
-
-                  <input
-                    id="editEmail"
-                    type="email"
-                    value={editEmail}
-                    onChange={(event) =>
-                      setEditEmail(
-                        event.target.value
-                      )
-                    }
-                  />
-
-                </div>
-
-                <div className="form-actions">
-
-                  <button
-                    type="button"
-                    className="secondary-button"
-                    onClick={() => {
-                      setShowEditForm(false);
-                      setEditingCustomer(null);
-                    }}
-                  >
-                    Cancel
-                  </button>
-
-                  <button
-                    type="button"
-                    className="primary-button"
-                    onClick={updateCustomer}
-                  >
-                    Save Changes
-                  </button>
-
-                </div>
-
-              </div>
-
+              <button
+                className="modal-close-button"
+                onClick={closeEditForm}
+              >
+                ×
+              </button>
             </div>
 
-          </div>
-        )}
+            <form
+              className="customer-form"
+              onSubmit={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                editCustomerForm.handleSubmit();
+              }}
+            >
+              {/* FIRST NAME */}
+              <editCustomerForm.Field
+                name="firstName"
+                validators={{
+                  onChange: ({ value }) => {
+                    const trimmed = value.trim();
 
-      {/* ======================================
-          VIEW CUSTOMER MODAL
-      ====================================== */}
+                    if (!trimmed) {
+                      return "First name is required";
+                    }
 
-      {showCustomerDetails &&
-        selectedCustomer && (
-          <div className="modal-overlay">
+                    if (trimmed.length < 2) {
+                      return "First name must be at least 2 characters";
+                    }
 
-            <div className="modal-card customer-details-modal">
+                    return undefined;
+                  },
+                }}
+              >
+                {(field) => (
+                  <div className="form-group">
+                    <label htmlFor="edit-first-name">
+                      First Name
+                    </label>
 
-              <div className="modal-header">
+                    <input
+                      id="edit-first-name"
+                      type="text"
+                      value={field.state.value}
+                      onChange={(event) =>
+                        field.handleChange(
+                          capitalizeName(event.target.value)
+                        )
+                      }
+                      onBlur={field.handleBlur}
+                      placeholder="First name"
+                    />
 
-                <div>
-                  <h2>Customer Details</h2>
+                    {field.state.meta.errors.length > 0 && (
+                      <p className="form-error">
+                        {field.state.meta.errors[0]}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </editCustomerForm.Field>
 
-                  <p>
-                    Account information for this customer.
-                  </p>
-                </div>
+              {/* MIDDLE NAME */}
+              <editCustomerForm.Field
+                name="middleName"
+                validators={{
+                  onChange: ({ value }) => {
+                    const trimmed = value.trim();
 
-                <button
-                  type="button"
-                  className="modal-close-button"
-                  onClick={() => {
-                    setShowCustomerDetails(false);
-                    setSelectedCustomer(null);
-                  }}
-                >
-                  ×
-                </button>
+                    if (
+                      trimmed &&
+                      trimmed.length < 2
+                    ) {
+                      return "Middle name must be at least 2 characters";
+                    }
 
-              </div>
+                    return undefined;
+                  },
+                }}
+              >
+                {(field) => (
+                  <div className="form-group">
+                    <label htmlFor="edit-middle-name">
+                      Middle Name
+                    </label>
 
-              <div className="customer-details-grid">
+                    <input
+                      id="edit-middle-name"
+                      type="text"
+                      value={field.state.value}
+                      onChange={(event) =>
+                        field.handleChange(
+                          capitalizeName(event.target.value)
+                        )
+                      }
+                      onBlur={field.handleBlur}
+                      placeholder="Middle name (optional)"
+                    />
 
-                <div>
-                  <span>ID</span>
+                    {field.state.meta.errors.length > 0 && (
+                      <p className="form-error">
+                        {field.state.meta.errors[0]}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </editCustomerForm.Field>
 
-                  <strong>
-                    {selectedCustomer.id}
-                  </strong>
-                </div>
+              {/* LAST NAME */}
+              <editCustomerForm.Field
+                name="lastName"
+                validators={{
+                  onChange: ({ value }) => {
+                    const trimmed = value.trim();
 
-                <div>
-                  <span>First Name</span>
+                    if (!trimmed) {
+                      return "Last name is required";
+                    }
 
-                  <strong>
-                    {selectedCustomer.firstName}
-                  </strong>
-                </div>
+                    if (trimmed.length < 2) {
+                      return "Last name must be at least 2 characters";
+                    }
 
-                <div>
-                  <span>Middle Name</span>
+                    return undefined;
+                  },
+                }}
+              >
+                {(field) => (
+                  <div className="form-group">
+                    <label htmlFor="edit-last-name">
+                      Last Name
+                    </label>
 
-                  <strong>
-                    {selectedCustomer.middleName ||
-                      "—"}
-                  </strong>
-                </div>
+                    <input
+                      id="edit-last-name"
+                      type="text"
+                      value={field.state.value}
+                      onChange={(event) =>
+                        field.handleChange(
+                          capitalizeName(event.target.value)
+                        )
+                      }
+                      onBlur={field.handleBlur}
+                      placeholder="Last name"
+                    />
 
-                <div>
-                  <span>Last Name</span>
+                    {field.state.meta.errors.length > 0 && (
+                      <p className="form-error">
+                        {field.state.meta.errors[0]}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </editCustomerForm.Field>
 
-                  <strong>
-                    {selectedCustomer.lastName}
-                  </strong>
-                </div>
+              {/* EMAIL */}
+              <editCustomerForm.Field
+                name="email"
+                validators={{
+                  onChange: ({ value }) => {
+                    const trimmed = value.trim();
 
-                <div>
-                  <span>Email</span>
+                    if (!trimmed) {
+                      return "Email is required";
+                    }
 
-                  <strong>
-                    {selectedCustomer.email}
-                  </strong>
-                </div>
+                    const emailRegex =
+                      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-                <div>
-                  <span>Created</span>
+                    if (!emailRegex.test(trimmed)) {
+                      return "Enter a valid email address";
+                    }
 
-                  <strong>
-                    {new Date(
-                      selectedCustomer.createdAt
-                    ).toLocaleString()}
-                  </strong>
-                </div>
+                    return undefined;
+                  },
+                }}
+              >
+                {(field) => (
+                  <div className="form-group">
+                    <label htmlFor="edit-email">
+                      Email
+                    </label>
 
-                <div>
-                  <span>Updated</span>
+                    <input
+                      id="edit-email"
+                      type="email"
+                      value={field.state.value}
+                      onChange={(event) =>
+                        field.handleChange(
+                          event.target.value
+                        )
+                      }
+                      onBlur={field.handleBlur}
+                      placeholder="customer@example.com"
+                    />
 
-                  <strong>
-                    {new Date(
-                      selectedCustomer.updatedAt
-                    ).toLocaleString()}
-                  </strong>
-                </div>
-
-              </div>
+                    {field.state.meta.errors.length > 0 && (
+                      <p className="form-error">
+                        {field.state.meta.errors[0]}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </editCustomerForm.Field>
 
               <div className="form-actions">
-
                 <button
                   type="button"
                   className="secondary-button"
-                  onClick={() => {
-                    setShowCustomerDetails(false);
-                    setSelectedCustomer(null);
-                  }}
+                  onClick={closeEditForm}
                 >
-                  Close
+                  Cancel
                 </button>
 
+                <button
+                  type="submit"
+                  className="primary-button"
+                  disabled={
+                    editCustomerForm.state.isSubmitting
+                  }
+                >
+                  {editCustomerForm.state.isSubmitting
+                    ? "Saving..."
+                    : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* -------------------------------------------- */}
+      {/* VIEW CUSTOMER MODAL */}
+      {/* -------------------------------------------- */}
+
+      {showCustomerDetails && selectedCustomer && (
+        <div
+          className="modal-overlay"
+          onClick={() => {
+            setShowCustomerDetails(false);
+            setSelectedCustomer(null);
+          }}
+        >
+          <div
+            className="modal-card customer-details-modal"
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+          >
+            <div className="modal-header">
+              <div>
+                <h2>Customer Details</h2>
+                <p>
+                  Customer #{selectedCustomer.id}
+                </p>
               </div>
 
-            </div>
-
-          </div>
-        )}
-
-      {/* ======================================
-          CUSTOMER SUMMARY
-      ====================================== */}
-
-      <div className="customer-summary">
-
-        <div className="summary-card">
-
-          <span>Customers Added</span>
-
-          <strong>
-            {customersAdded}
-          </strong>
-
-        </div>
-
-      </div>
-
-      {/* ======================================
-          CUSTOMER LIST
-      ====================================== */}
-
-      <section className="customers-card">
-
-        <div className="card-header">
-
-          <h2>Customer List</h2>
-
-          <div className="card-header-actions">
-
-            <button
-              type="button"
-              className="secondary-button"
-              onClick={getCustomers}
-              disabled={loading}
-            >
-              {loading
-                ? "Loading..."
-                : "Get Customers"}
-            </button>
-
-            {customersLoaded && (
               <button
-                type="button"
-                className="secondary-button"
-                onClick={removeCustomerList}
+                className="modal-close-button"
+                onClick={() => {
+                  setShowCustomerDetails(false);
+                  setSelectedCustomer(null);
+                }}
               >
-                Hide List
+                ×
               </button>
-            )}
+            </div>
 
+            <div className="customer-details-grid">
+              <div>
+                <span>First Name</span>
+                <strong>
+                  {selectedCustomer.firstName}
+                </strong>
+              </div>
+
+              <div>
+                <span>Middle Name</span>
+                <strong>
+                  {selectedCustomer.middleName || "—"}
+                </strong>
+              </div>
+
+              <div>
+                <span>Last Name</span>
+                <strong>
+                  {selectedCustomer.lastName}
+                </strong>
+              </div>
+
+              <div>
+                <span>Email</span>
+                <strong>
+                  {selectedCustomer.email}
+                </strong>
+              </div>
+
+              <div>
+                <span>Created At</span>
+                <strong>
+                  {new Date(
+                    selectedCustomer.createdAt
+                  ).toLocaleString()}
+                </strong>
+              </div>
+
+              <div>
+                <span>Updated At</span>
+                <strong>
+                  {new Date(
+                    selectedCustomer.updatedAt
+                  ).toLocaleString()}
+                </strong>
+              </div>
+            </div>
+
+            <div className="form-actions">
+              <button
+                className="secondary-button"
+                onClick={() => {
+                  setShowCustomerDetails(false);
+                  setSelectedCustomer(null);
+                }}
+              >
+                Close
+              </button>
+
+              <button
+                className="primary-button"
+                onClick={() =>
+                  startEditingCustomer(selectedCustomer)
+                }
+              >
+                Edit Customer
+              </button>
+            </div>
           </div>
-
         </div>
-
-        {/* ERROR */}
-
-        {error && (
-          <div className="empty-state">
-            {error}
-          </div>
-        )}
-
-        {/* LOADING */}
-
-        {loading && (
-          <div className="empty-state">
-            Loading customers...
-          </div>
-        )}
-
-        {/* NOTHING LOADED YET */}
-
-        {!loading &&
-          !error &&
-          !customersLoaded && (
-            <div className="empty-state">
-
-              <h3>
-                No customers loaded
-              </h3>
-
-              <p>
-                Click "Get Customers" to load your customers.
-              </p>
-
-            </div>
-          )}
-
-        {/* NO SEARCH RESULTS */}
-
-        {!loading &&
-          !error &&
-          customersLoaded &&
-          customers.length > 0 &&
-          filteredCustomers.length === 0 && (
-            <div className="empty-state">
-
-              <h3>
-                No customers found
-              </h3>
-
-              <p>
-                No customers match "{searchTerm}".
-              </p>
-
-            </div>
-          )}
-
-        {/* CUSTOMER TABLE */}
-
-        {!loading &&
-          !error &&
-          customersLoaded &&
-          filteredCustomers.length > 0 && (
-            <table className="customers-table">
-
-              <thead>
-
-                <tr>
-                  <th>ID</th>
-                  <th>Names</th>
-                  <th>Email</th>
-                  <th></th>
-                </tr>
-
-              </thead>
-
-              <tbody>
-
-                {filteredCustomers.map(
-                  (customer) => (
-                    <tr
-                      key={customer.id}
-                    >
-
-                      <td>
-                        {customer.id}
-                      </td>
-
-                      <td>
-                        {customer.firstName}{" "}
-
-                        {customer.middleName
-                          ? `${customer.middleName} `
-                          : ""}
-
-                        {customer.lastName}
-                      </td>
-
-                      <td>
-                        {customer.email}
-                      </td>
-
-                      <td className="customer-menu-cell">
-
-                        <button
-                          type="button"
-                          className="customer-menu-button"
-                          onClick={(event) => {
-                            if (
-                              openMenuId ===
-                              customer.id
-                            ) {
-                              setOpenMenuId(
-                                null
-                              );
-
-                              return;
-                            }
-
-                            const button =
-                              event.currentTarget;
-
-                            const rect =
-                              button.getBoundingClientRect();
-
-                            const menuHeight =
-                              130;
-
-                            if (
-                              rect.bottom +
-                                menuHeight >
-                              window.innerHeight
-                            ) {
-                              setMenuDirection(
-                                "up"
-                              );
-                            } else {
-                              setMenuDirection(
-                                "down"
-                              );
-                            }
-
-                            setOpenMenuId(
-                              customer.id
-                            );
-                          }}
-                        >
-                          ⋮
-                        </button>
-
-                        {openMenuId ===
-                          customer.id && (
-                          <div
-                            className={`customer-menu ${
-                              menuDirection ===
-                              "up"
-                                ? "customer-menu-up"
-                                : ""
-                            }`}
-                          >
-
-                            <button
-                              type="button"
-                              onClick={() =>
-                                getCustomer(
-                                  customer.id
-                                )
-                              }
-                            >
-                              👁 View
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() =>
-                                startEditingCustomer(
-                                  customer
-                                )
-                              }
-                            >
-                              ✏ Edit
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() =>
-                                deleteCustomer(
-                                  customer.id
-                                )
-                              }
-                            >
-                              🗑 Delete
-                            </button>
-
-                          </div>
-                        )}
-
-                      </td>
-
-                    </tr>
-                  )
-                )}
-
-              </tbody>
-
-            </table>
-          )}
-
-      </section>
-
-    </main>
+      )}
+    </div>
   );
 }
 

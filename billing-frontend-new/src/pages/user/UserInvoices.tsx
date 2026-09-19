@@ -6,10 +6,18 @@ import {
   type Invoice,
 } from "../../services/billingService";
 
+import useCustomerStore from "../../stores/customerStore";
+
 import "./UserInvoices.css";
 
 function UserInvoices() {
-  const customerId = 2;
+  const currentCustomer = useCustomerStore(
+    (state) => state.currentCustomer
+  );
+
+  const fetchCurrentCustomer = useCustomerStore(
+    (state) => state.fetchCurrentCustomer
+  );
 
   const [invoices, setInvoices] =
     useState<Invoice[]>([]);
@@ -20,8 +28,25 @@ function UserInvoices() {
   useEffect(() => {
     const loadInvoices = async () => {
       try {
+        let customer = currentCustomer;
+
+        if (!customer) {
+          customer =
+            await fetchCurrentCustomer();
+        }
+
+        if (!customer) {
+          console.error(
+            "No current customer found."
+          );
+
+          return;
+        }
+
         const data =
-          await getInvoicesByCustomerId(customerId);
+          await getInvoicesByCustomerId(
+            customer.id
+          );
 
         setInvoices(data);
       } catch (error) {
@@ -35,7 +60,10 @@ function UserInvoices() {
     };
 
     loadInvoices();
-  }, []);
+  }, [
+    currentCustomer,
+    fetchCurrentCustomer,
+  ]);
 
   const formatMoney = (cents: number) => {
     return `ETB ${(cents / 100).toFixed(2)}`;
@@ -44,11 +72,8 @@ function UserInvoices() {
   if (loading) {
     return (
       <main className="user-invoices-page">
-
         <h1>Invoices</h1>
-
         <p>Loading invoices...</p>
-
       </main>
     );
   }
@@ -56,43 +81,32 @@ function UserInvoices() {
   return (
     <main className="user-invoices-page">
 
-      {/* HEADER */}
-
       <div className="user-invoices-header">
-
         <h1>Invoices</h1>
 
         <p>
           View your billing history and payment
           status.
         </p>
-
       </div>
-
-      {/* EMPTY STATE */}
 
       {invoices.length === 0 ? (
 
         <div className="user-invoices-empty">
-
           <h3>No invoices</h3>
 
           <p>
             You don't have any invoices yet.
           </p>
-
         </div>
 
       ) : (
-
-        /* INVOICE TABLE */
 
         <div className="user-invoices-card">
 
           <table className="user-invoices-table">
 
             <thead>
-
               <tr>
                 <th>Invoice</th>
                 <th>Amount</th>
@@ -101,7 +115,6 @@ function UserInvoices() {
                 <th>Paid At</th>
                 <th>Action</th>
               </tr>
-
             </thead>
 
             <tbody>
@@ -111,17 +124,16 @@ function UserInvoices() {
                 <tr key={invoice.id}>
 
                   <td>
-
                     <Link
                       to="/user/invoices/$invoiceId"
                       params={{
-                        invoiceId: String(invoice.id),
+                        invoiceId:
+                          String(invoice.id),
                       }}
                       className="invoice-link"
                     >
                       #{invoice.id}
                     </Link>
-
                   </td>
 
                   <td>
@@ -131,13 +143,11 @@ function UserInvoices() {
                   </td>
 
                   <td>
-
                     <span
                       className={`invoice-status invoice-status-${invoice.status.toLowerCase()}`}
                     >
                       {invoice.status}
                     </span>
-
                   </td>
 
                   <td>
@@ -155,17 +165,18 @@ function UserInvoices() {
                   </td>
 
                   <td>
-
                     <Link
                       to="/user/invoices/$invoiceId"
                       params={{
-                        invoiceId: String(invoice.id),
+                        invoiceId:
+                          String(invoice.id),
                       }}
                       className="invoice-view-button"
                     >
                       View
                     </Link>
 
+                    
                   </td>
 
                 </tr>

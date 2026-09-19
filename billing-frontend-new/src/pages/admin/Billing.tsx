@@ -1,5 +1,6 @@
 import "./Billing.css";
 import { useEffect, useState } from "react";
+import { useForm } from "@tanstack/react-form";
 
 import useBillingStore from "../../stores/billingStore";
 import useCustomerStore from "../../stores/customerStore";
@@ -51,7 +52,8 @@ function Billing() {
      ========================= */
 
   const [plansLoaded, setPlansLoaded] = useState(false);
-  const [subscriptionsLoaded, setSubscriptionsLoaded] = useState(false);
+  const [subscriptionsLoaded, setSubscriptionsLoaded] =
+    useState(false);
   const [invoicesLoaded, setInvoicesLoaded] = useState(false);
   const [paymentAttemptsLoaded, setPaymentAttemptsLoaded] =
     useState(false);
@@ -73,22 +75,14 @@ function Billing() {
 
   const [showCreatePlan, setShowCreatePlan] = useState(false);
 
-  const [planName, setPlanName] = useState("");
-  const [planPrice, setPlanPrice] = useState("");
-  const [billingCycle, setBillingCycle] = useState("");
-
-  const [planManagementSearch, setPlanManagementSearch] = useState("");
-
-  const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
-
-  const [editPlanName, setEditPlanName] = useState("");
-  const [editPlanPrice, setEditPlanPrice] = useState("");
-  const [editPlanBillingCycle, setEditPlanBillingCycle] =
+  const [planManagementSearch, setPlanManagementSearch] =
     useState("");
 
-  const [deletingPlanId, setDeletingPlanId] = useState<number | null>(
-    null
-  );
+  const [editingPlan, setEditingPlan] =
+    useState<Plan | null>(null);
+
+  const [deletingPlanId, setDeletingPlanId] =
+    useState<number | null>(null);
 
   /* =========================
      SUBSCRIPTION STATE
@@ -97,13 +91,8 @@ function Billing() {
   const [showCreateSubscription, setShowCreateSubscription] =
     useState(false);
 
-  const [selectedCustomer, setSelectedCustomer] = useState("");
-  const [selectedPlan, setSelectedPlan] = useState("");
-
   const [changingSubscriptionId, setChangingSubscriptionId] =
     useState<number | null>(null);
-
-  const [selectedChangePlan, setSelectedChangePlan] = useState("");
 
   /* =========================
      SEARCH STATE
@@ -119,7 +108,8 @@ function Billing() {
   const [showCustomerResults, setShowCustomerResults] =
     useState(false);
 
-  const [showPlanResults, setShowPlanResults] = useState(false);
+  const [showPlanResults, setShowPlanResults] =
+    useState(false);
 
   /* =========================
      LOAD OVERVIEW DATA
@@ -222,7 +212,10 @@ function Billing() {
     try {
       await fetchCustomers();
     } catch (error) {
-      console.error("LOAD CUSTOMERS ERROR:", error);
+      console.error(
+        "LOAD CUSTOMERS ERROR:",
+        error
+      );
     }
   };
 
@@ -230,146 +223,149 @@ function Billing() {
      BILLING STATISTICS
      ========================= */
 
-  const activeSubscriptions = subscriptions.filter(
-    (subscription) =>
-      subscription.status === "ACTIVE"
-  ).length;
+  const activeSubscriptions =
+    subscriptions.filter(
+      (subscription) =>
+        subscription.status === "ACTIVE"
+    ).length;
 
-  const pendingInvoices = invoices.filter(
-    (invoice) =>
-      invoice.status === "PENDING"
-  ).length;
+  const pendingInvoices =
+    invoices.filter(
+      (invoice) =>
+        invoice.status === "PENDING"
+    ).length;
 
-  const canceledSubscriptions = subscriptions.filter(
-    (subscription) =>
-      subscription.status === "CANCELED"
-  ).length;
+  const canceledSubscriptions =
+    subscriptions.filter(
+      (subscription) =>
+        subscription.status === "CANCELED"
+    ).length;
 
-  const failedPaymentAttempts = paymentAttempts.filter(
-    (attempt) =>
-      attempt.status === "FAILED"
-  ).length;
+  const failedPaymentAttempts =
+    paymentAttempts.filter(
+      (attempt) =>
+        attempt.status === "FAILED"
+    ).length;
 
-  const paidInvoices = invoices.filter(
-    (invoice) =>
-      invoice.status === "PAID"
-  );
+  const paidInvoices =
+    invoices.filter(
+      (invoice) =>
+        invoice.status === "PAID"
+    );
 
-  const totalRevenueCents = paidInvoices.reduce(
-    (total, invoice) =>
-      total + invoice.amountCents,
-    0
-  );
+  const totalRevenueCents =
+    paidInvoices.reduce(
+      (total, invoice) =>
+        total + invoice.amountCents,
+      0
+    );
 
-  const totalRevenue = totalRevenueCents / 100;
-
-  /* =========================
-     CREATE PLAN
-     ========================= */
-
-  const handleCreatePlan = async () => {
-    if (
-      !planName.trim() ||
-      !planPrice ||
-      !billingCycle
-    ) {
-      alert("Please complete all plan fields.");
-      return;
-    }
-
-    const price = Number(planPrice);
-
-    if (Number.isNaN(price) || price < 0) {
-      alert("Please enter a valid plan price.");
-      return;
-    }
-
-    try {
-      await createPlan({
-        name: planName.trim(),
-        priceCents: Math.round(price * 100),
-        billingCycle,
-      });
-
-      setPlanName("");
-      setPlanPrice("");
-      setBillingCycle("");
-      setShowCreatePlan(false);
-      setPlansLoaded(true);
-    } catch (error) {
-      console.error(
-        "CREATE PLAN ERROR:",
-        error
-      );
-
-      alert("Failed to create plan.");
-    }
-  };
+  const totalRevenue =
+    totalRevenueCents / 100;
 
   /* =========================
-     EDIT PLAN
+     CREATE PLAN FORM
      ========================= */
+
+  const createPlanForm = useForm({
+    defaultValues: {
+      name: "",
+      price: "",
+      billingCycle: "",
+    },
+
+    onSubmit: async ({ value }) => {
+      try {
+        const price = Number(value.price);
+
+        await createPlan({
+          name: value.name.trim(),
+          priceCents: Math.round(price * 100),
+          billingCycle: value.billingCycle,
+        });
+
+        setPlansLoaded(true);
+        setShowCreatePlan(false);
+
+        createPlanForm.reset();
+      } catch (error) {
+        console.error(
+          "CREATE PLAN ERROR:",
+          error
+        );
+
+        alert("Failed to create plan.");
+      }
+    },
+  });
+
+  /* =========================
+     EDIT PLAN FORM
+     ========================= */
+
+  const editPlanForm = useForm({
+    defaultValues: {
+      name: "",
+      price: "",
+      billingCycle: "",
+    },
+
+    onSubmit: async ({ value }) => {
+      if (!editingPlan) {
+        return;
+      }
+
+      try {
+        const price = Number(value.price);
+
+        await updatePlan(
+          editingPlan.id,
+          {
+            name: value.name.trim(),
+            priceCents: Math.round(price * 100),
+            billingCycle: value.billingCycle,
+          }
+        );
+
+        setEditingPlan(null);
+        editPlanForm.reset();
+      } catch (error) {
+        console.error(
+          "UPDATE PLAN ERROR:",
+          error
+        );
+
+        alert("Failed to update plan.");
+      }
+    },
+  });
 
   const openEditPlan = (plan: Plan) => {
     setEditingPlan(plan);
 
-    setEditPlanName(plan.name);
-    setEditPlanPrice(
+    editPlanForm.setFieldValue(
+      "name",
+      plan.name
+    );
+
+    editPlanForm.setFieldValue(
+      "price",
       (plan.priceCents / 100).toFixed(2)
     );
-    setEditPlanBillingCycle(plan.billingCycle);
-  };
 
-  const handleUpdatePlan = async () => {
-    if (!editingPlan) {
-      return;
-    }
-
-    if (
-      !editPlanName.trim() ||
-      !editPlanPrice ||
-      !editPlanBillingCycle
-    ) {
-      alert("Please complete all plan fields.");
-      return;
-    }
-
-    const price = Number(editPlanPrice);
-
-    if (Number.isNaN(price) || price < 0) {
-      alert("Please enter a valid plan price.");
-      return;
-    }
-
-    try {
-      await updatePlan(
-        editingPlan.id,
-        {
-          name: editPlanName.trim(),
-          priceCents: Math.round(price * 100),
-          billingCycle: editPlanBillingCycle,
-        }
-      );
-
-      setEditingPlan(null);
-      setEditPlanName("");
-      setEditPlanPrice("");
-      setEditPlanBillingCycle("");
-    } catch (error) {
-      console.error(
-        "UPDATE PLAN ERROR:",
-        error
-      );
-
-      alert("Failed to update plan.");
-    }
+    editPlanForm.setFieldValue(
+      "billingCycle",
+      plan.billingCycle
+    );
   };
 
   /* =========================
      DELETE PLAN
      ========================= */
 
-  const handleDeletePlan = async (id: number) => {
+  const handleDeletePlan = async (
+    id: number
+  ) => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this plan?"
     );
@@ -397,121 +393,143 @@ function Billing() {
   };
 
   /* =========================
-     CREATE SUBSCRIPTION
+     CREATE SUBSCRIPTION FORM
      ========================= */
 
-  const handleOpenCreateSubscription = async () => {
-    setShowCreateSubscription(true);
+  const createSubscriptionForm = useForm({
+    defaultValues: {
+      customerId: "",
+      planId: "",
+    },
 
-    if (customers.length === 0) {
-      await handleLoadCustomers();
-    }
+    onSubmit: async ({ value }) => {
+      try {
+        await createSubscription({
+          customerId: Number(value.customerId),
+          planId: Number(value.planId),
+        });
 
-    if (plans.length === 0) {
-      await handleLoadPlans();
-    }
-  };
+        createSubscriptionForm.reset();
 
-  const handleCreateSubscription = async () => {
-    if (
-      !selectedCustomer ||
-      !selectedPlan
-    ) {
-      alert(
-        "Please select a customer and a plan."
-      );
+        setCustomerSearch("");
+        setPlanSearch("");
 
-      return;
-    }
+        setShowCustomerResults(false);
+        setShowPlanResults(false);
 
-    try {
-      await createSubscription({
-        customerId: Number(selectedCustomer),
-        planId: Number(selectedPlan),
-      });
+        setShowCreateSubscription(false);
+        setSubscriptionsLoaded(true);
+      } catch (error) {
+        console.error(
+          "CREATE SUBSCRIPTION ERROR:",
+          error
+        );
 
-      setSelectedCustomer("");
-      setSelectedPlan("");
+        alert(
+          "Failed to create subscription."
+        );
+      }
+    },
+  });
 
-      setCustomerSearch("");
-      setPlanSearch("");
+  /* =========================
+     OPEN CREATE SUBSCRIPTION
+     ========================= */
 
-      setShowCustomerResults(false);
-      setShowPlanResults(false);
+  const handleOpenCreateSubscription =
+    async () => {
+      setShowCreateSubscription(true);
 
-      setShowCreateSubscription(false);
-      setSubscriptionsLoaded(true);
-    } catch (error) {
-      console.error(
-        "CREATE SUBSCRIPTION ERROR:",
-        error
-      );
+      if (customers.length === 0) {
+        await handleLoadCustomers();
+      }
 
-      alert(
-        "Failed to create subscription."
-      );
-    }
-  };
+      if (plans.length === 0) {
+        await handleLoadPlans();
+      }
+    };
 
   /* =========================
      CANCEL SUBSCRIPTION
      ========================= */
 
-  const handleCancelSubscription = async (
-    id: number
-  ) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to cancel this subscription?"
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      await cancelSubscription(id);
-    } catch (error) {
-      console.error(
-        "CANCEL SUBSCRIPTION ERROR:",
-        error
+  const handleCancelSubscription =
+    async (id: number) => {
+      const confirmed = window.confirm(
+        "Are you sure you want to cancel this subscription?"
       );
 
-      alert(
-        "Failed to cancel subscription."
-      );
-    }
-  };
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+        await cancelSubscription(id);
+      } catch (error) {
+        console.error(
+          "CANCEL SUBSCRIPTION ERROR:",
+          error
+        );
+
+        alert(
+          "Failed to cancel subscription."
+        );
+      }
+    };
 
   /* =========================
-     CHANGE SUBSCRIPTION PLAN
+     CHANGE PLAN FORM
      ========================= */
 
-  const handleChangeSubscriptionPlan = async () => {
-    if (
-      changingSubscriptionId === null ||
-      !selectedChangePlan
-    ) {
-      return;
+  const changePlanForm = useForm({
+    defaultValues: {
+      planId: "",
+    },
+
+    onSubmit: async ({ value }) => {
+      if (
+        changingSubscriptionId === null
+      ) {
+        return;
+      }
+
+      try {
+        await changeSubscriptionPlan(
+          changingSubscriptionId,
+          Number(value.planId)
+        );
+
+        setChangingSubscriptionId(null);
+        changePlanForm.reset();
+      } catch (error) {
+        console.error(
+          "CHANGE PLAN ERROR:",
+          error
+        );
+
+        alert(
+          "Failed to change subscription plan."
+        );
+      }
+    },
+  });
+
+  /* =========================
+     OPEN CHANGE PLAN
+     ========================= */
+
+  const handleOpenChangePlan = (
+    subscriptionId: number
+  ) => {
+    if (!plansLoaded) {
+      handleLoadPlans();
     }
 
-    try {
-      await changeSubscriptionPlan(
-        changingSubscriptionId,
-        Number(selectedChangePlan)
-      );
+    changePlanForm.reset();
 
-      setChangingSubscriptionId(null);
-      setSelectedChangePlan("");
-    } catch (error) {
-      console.error(
-        "CHANGE PLAN ERROR:",
-        error
-      );
-
-      alert(
-        "Failed to change subscription plan."
-      );
-    }
+    setChangingSubscriptionId(
+      subscriptionId
+    );
   };
 
   /* =========================
@@ -554,10 +572,11 @@ function Billing() {
   const getCustomerName = (
     customerId: number
   ) => {
-    const customer = customers.find(
-      (customer) =>
-        customer.id === customerId
-    );
+    const customer =
+      customers.find(
+        (customer) =>
+          customer.id === customerId
+      );
 
     if (!customer) {
       return `Customer #${customerId}`;
@@ -569,10 +588,11 @@ function Billing() {
   const getPlanName = (
     planId: number
   ) => {
-    const plan = plans.find(
-      (plan) =>
-        plan.id === planId
-    );
+    const plan =
+      plans.find(
+        (plan) =>
+          plan.id === planId
+      );
 
     if (!plan) {
       return `Plan #${planId}`;
@@ -588,89 +608,98 @@ function Billing() {
       return "-";
     }
 
-    return new Date(date).toLocaleDateString();
+    return new Date(
+      date
+    ).toLocaleDateString();
   };
 
   /* =========================
      SEARCH FILTERS
      ========================= */
 
-  const filteredCustomers = customers.filter(
-    (customer) => {
-      const search =
-        customerSearch
-          .toLowerCase()
-          .trim();
-
-      const fullName =
-        `${customer.firstName} ${customer.lastName}`
-          .toLowerCase();
-
-      return (
-        fullName.includes(search) ||
-        customer.email
-          .toLowerCase()
-          .includes(search)
-      );
-    }
-  );
-
-  const filteredPlans = plans.filter(
-    (plan) =>
-      plan.name
-        .toLowerCase()
-        .includes(
-          planSearch
+  const filteredCustomers =
+    customers.filter(
+      (customer) => {
+        const search =
+          customerSearch
             .toLowerCase()
-            .trim()
-        )
-  );
+            .trim();
 
-  const filteredManagementPlans =
-    plans.filter((plan) => {
-      const search =
-        planManagementSearch
-          .toLowerCase()
-          .trim();
+        const fullName =
+          `${customer.firstName} ${customer.lastName}`
+            .toLowerCase();
 
-      return (
+        return (
+          fullName.includes(search) ||
+          customer.email
+            .toLowerCase()
+            .includes(search)
+        );
+      }
+    );
+
+  const filteredPlans =
+    plans.filter(
+      (plan) =>
         plan.name
           .toLowerCase()
-          .includes(search) ||
-        plan.billingCycle
-          .toLowerCase()
-          .includes(search) ||
-        String(plan.id)
-          .includes(search)
-      );
-    });
+          .includes(
+            planSearch
+              .toLowerCase()
+              .trim()
+          )
+    );
 
-  const filteredInvoices = invoices.filter(
-    (invoice) => {
-      const search =
-        invoiceSearch
-          .toLowerCase()
-          .trim();
+  const filteredManagementPlans =
+    plans.filter(
+      (plan) => {
+        const search =
+          planManagementSearch
+            .toLowerCase()
+            .trim();
 
-      if (!search) {
-        return true;
+        return (
+          plan.name
+            .toLowerCase()
+            .includes(search) ||
+          plan.billingCycle
+            .toLowerCase()
+            .includes(search) ||
+          String(plan.id)
+            .includes(search)
+        );
       }
+    );
 
-      const customerName =
-        getCustomerName(
-          invoice.customerId
-        ).toLowerCase();
+  const filteredInvoices =
+    invoices.filter(
+      (invoice) => {
+        const search =
+          invoiceSearch
+            .toLowerCase()
+            .trim();
 
-      return (
-        String(invoice.id).includes(search) ||
-        String(invoice.customerId).includes(search) ||
-        customerName.includes(search) ||
-        invoice.status
-          .toLowerCase()
-          .includes(search)
-      );
-    }
-  );
+        if (!search) {
+          return true;
+        }
+
+        const customerName =
+          getCustomerName(
+            invoice.customerId
+          ).toLowerCase();
+
+        return (
+          String(invoice.id)
+            .includes(search) ||
+          String(invoice.customerId)
+            .includes(search) ||
+          customerName.includes(search) ||
+          invoice.status
+            .toLowerCase()
+            .includes(search)
+        );
+      }
+    );
 
   const filteredPaymentAttempts =
     paymentAttempts.filter(
@@ -685,8 +714,10 @@ function Billing() {
         }
 
         return (
-          String(attempt.id).includes(search) ||
-          String(attempt.invoiceId).includes(search) ||
+          String(attempt.id)
+            .includes(search) ||
+          String(attempt.invoiceId)
+            .includes(search) ||
           attempt.status
             .toLowerCase()
             .includes(search)
@@ -706,15 +737,22 @@ function Billing() {
           ========================= */}
 
       <div className="billing-header">
+
         <div>
-          <h1>Billing</h1>
+
+          <h1>
+            Billing
+          </h1>
 
           <p>
             Manage plans, subscriptions,
             invoices, and payments.
           </p>
+
         </div>
+
       </div>
+
 
       {/* =========================
           OVERVIEW CARDS
@@ -723,74 +761,120 @@ function Billing() {
       <div className="billing-stats">
 
         <div className="billing-stat-card">
-          <span>Total Plans</span>
 
-          <strong>
-            {plansLoaded
-              ? plans.length
-              : "—"}
-          </strong>
+          <div className="billing-stat-card-top">
 
-          <small>
-            Available billing plans
-          </small>
+            <div className="billing-stat-card-content">
+
+              <span>
+                Total Plans
+              </span>
+
+              <strong>
+                {plansLoaded
+                  ? plans.length
+                  : "—"}
+              </strong>
+
+              <small>
+                Available billing plans
+              </small>
+
+            </div>
+
+          </div>
+
         </div>
 
+
         <div className="billing-stat-card">
-          <span>
-            Active Subscriptions
-          </span>
 
-          <strong>
-            {subscriptionsLoaded
-              ? activeSubscriptions
-              : "—"}
-          </strong>
+          <div className="billing-stat-card-top">
 
-          <small>
-            Currently active customers
-          </small>
+            <div className="billing-stat-card-content">
+
+              <span>
+                Active Subscriptions
+              </span>
+
+              <strong>
+                {subscriptionsLoaded
+                  ? activeSubscriptions
+                  : "—"}
+              </strong>
+
+              <small>
+                Currently active customers
+              </small>
+
+            </div>
+
+          </div>
+
         </div>
 
+
         <div className="billing-stat-card">
-          <span>
-            Pending Invoices
-          </span>
 
-          <strong>
-            {invoicesLoaded
-              ? pendingInvoices
-              : "—"}
-          </strong>
+          <div className="billing-stat-card-top">
 
-          <small>
-            Awaiting payment
-          </small>
+            <div className="billing-stat-card-content">
+
+              <span>
+                Pending Invoices
+              </span>
+
+              <strong>
+                {invoicesLoaded
+                  ? pendingInvoices
+                  : "—"}
+              </strong>
+
+              <small>
+                Awaiting payment
+              </small>
+
+            </div>
+
+          </div>
+
         </div>
 
+
         <div className="billing-stat-card">
-          <span>
-            Total Revenue
-          </span>
 
-          <strong>
-            {invoicesLoaded
-              ? `ETB ${totalRevenue.toLocaleString(
-                  undefined,
-                  {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  }
-                )}`
-              : "—"}
-          </strong>
+          <div className="billing-stat-card-top">
 
-          <small>
-            From paid invoices
-          </small>
+            <div className="billing-stat-card-content">
+
+              <span>
+                Total Revenue
+              </span>
+
+              <strong>
+                {invoicesLoaded
+                  ? `ETB ${totalRevenue.toLocaleString(
+                      undefined,
+                      {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }
+                    )}`
+                  : "—"}
+              </strong>
+
+              <small>
+                From paid invoices
+              </small>
+
+            </div>
+
+          </div>
+
         </div>
 
       </div>
+
 
       {/* =========================
           PLANS
@@ -800,25 +884,35 @@ function Billing() {
 
         <div className="section-header">
 
-          <div>
-            <h2>Plans</h2>
+          <div className="section-header-content">
+
+            <h2>
+              Plans
+            </h2>
 
             <p>
               Manage your available
               billing plans.
             </p>
+
           </div>
 
-          <button
-            className="primary-button"
-            onClick={() =>
-              setShowCreatePlan(true)
-            }
-          >
-            + Create Plan
-          </button>
+          <div className="section-header-actions">
+
+            <button
+              type="button"
+              className="primary-button"
+              onClick={() =>
+                setShowCreatePlan(true)
+              }
+            >
+              + Create Plan
+            </button>
+
+          </div>
 
         </div>
+
 
         {!plansLoaded ? (
 
@@ -834,6 +928,7 @@ function Billing() {
             </p>
 
             <button
+              type="button"
               className="primary-button"
               onClick={handleLoadPlans}
               disabled={loadingPlans}
@@ -858,6 +953,7 @@ function Billing() {
             </p>
 
             <button
+              type="button"
               className="primary-button"
               onClick={handleLoadPlans}
               disabled={loadingPlans}
@@ -882,6 +978,7 @@ function Billing() {
             </p>
 
             <button
+              type="button"
               className="primary-button"
               onClick={() =>
                 setShowPlansTable(true)
@@ -903,9 +1000,9 @@ function Billing() {
                 className="plans-search-input"
                 placeholder="Search plans by name, cycle, or ID..."
                 value={planManagementSearch}
-                onChange={(e) =>
+                onChange={(event) =>
                   setPlanManagementSearch(
-                    e.target.value
+                    event.target.value
                   )
                 }
               />
@@ -923,17 +1020,36 @@ function Billing() {
 
             </div>
 
+
             <div className="plans-management-table">
 
               <div className="plans-management-header">
-                <span>ID</span>
-                <span>Plan</span>
-                <span>Price</span>
-                <span>Billing Cycle</span>
-                <span>Actions</span>
+
+                <span>
+                  ID
+                </span>
+
+                <span>
+                  Plan
+                </span>
+
+                <span>
+                  Price
+                </span>
+
+                <span>
+                  Billing Cycle
+                </span>
+
+                <span>
+                  Actions
+                </span>
+
               </div>
 
-              {filteredManagementPlans.length === 0 ? (
+
+              {filteredManagementPlans.length ===
+              0 ? (
 
                 <div className="table-empty">
 
@@ -970,7 +1086,10 @@ function Billing() {
 
                       <span>
                         ETB{" "}
-                        {(plan.priceCents / 100).toFixed(2)}
+                        {(
+                          plan.priceCents /
+                          100
+                        ).toFixed(2)}
                       </span>
 
                       <span>
@@ -1019,6 +1138,7 @@ function Billing() {
 
             </div>
 
+
             <div className="table-actions">
 
               <button
@@ -1039,6 +1159,7 @@ function Billing() {
 
       </div>
 
+
       {/* =========================
           CREATE PLAN MODAL
           ========================= */}
@@ -1047,9 +1168,10 @@ function Billing() {
 
         <div
           className="modal-overlay"
-          onClick={() =>
-            setShowCreatePlan(false)
-          }
+          onClick={() => {
+            setShowCreatePlan(false);
+            createPlanForm.reset();
+          }}
         >
 
           <div
@@ -1062,134 +1184,286 @@ function Billing() {
             <div className="modal-header">
 
               <div>
-                <h2>Create Plan</h2>
+
+                <h2>
+                  Create Plan
+                </h2>
 
                 <p>
                   Add a new billing plan.
                 </p>
+
               </div>
 
               <button
+                type="button"
                 className="modal-close"
-                onClick={() =>
-                  setShowCreatePlan(false)
-                }
+                onClick={() => {
+                  setShowCreatePlan(false);
+                  createPlanForm.reset();
+                }}
               >
                 ×
               </button>
 
             </div>
 
-            <div className="modal-body">
 
-              <div className="form-group">
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                createPlanForm.handleSubmit();
+              }}
+            >
 
-                <label htmlFor="plan-name">
-                  Plan Name
-                </label>
+              <div className="modal-body">
 
-                <input
-                  id="plan-name"
-                  type="text"
-                  placeholder="Enter Plan Name"
-                  value={planName}
-                  onChange={(e) =>
-                    setPlanName(
-                      e.target.value
-                    )
-                  }
-                />
+                <createPlanForm.Field
+                  name="name"
+                  validators={{
+                    onChange: ({ value }) => {
 
-              </div>
+                      if (!value.trim()) {
+                        return "Plan name is required.";
+                      }
 
-              <div className="form-group">
+                      if (
+                        value.trim().length < 2
+                      ) {
+                        return "Plan name must be at least 2 characters.";
+                      }
 
-                <label htmlFor="plan-price">
-                  Price (ETB)
-                </label>
-
-                <input
-                  id="plan-price"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                  value={planPrice}
-                  onChange={(e) =>
-                    setPlanPrice(
-                      e.target.value
-                    )
-                  }
-                />
-
-              </div>
-
-              <div className="form-group">
-
-                <label htmlFor="billing-cycle">
-                  Billing Cycle
-                </label>
-
-                <select
-                  id="billing-cycle"
-                  value={billingCycle}
-                  onChange={(e) =>
-                    setBillingCycle(
-                      e.target.value
-                    )
-                  }
+                      return undefined;
+                    },
+                  }}
                 >
+                  {(field) => (
 
-                  <option
-                    value=""
-                    disabled
-                  >
-                    Select billing cycle
-                  </option>
+                    <div className="form-group">
 
-                  <option value="WEEKLY">
-                    Weekly
-                  </option>
+                      <label htmlFor="plan-name">
+                        Plan Name
+                      </label>
 
-                  <option value="MONTHLY">
-                    Monthly
-                  </option>
+                      <input
+                        id="plan-name"
+                        type="text"
+                        placeholder="Enter Plan Name"
+                        value={field.state.value}
+                        onChange={(event) =>
+                          field.handleChange(
+                            event.target.value
+                          )
+                        }
+                        onBlur={field.handleBlur}
+                      />
 
-                  <option value="YEARLY">
-                    Yearly
-                  </option>
+                      {field.state.meta.errors.length >
+                        0 && (
 
-                </select>
+                        <p className="form-error">
+                          {String(
+                            field.state.meta.errors[0]
+                          )}
+                        </p>
+
+                      )}
+
+                    </div>
+
+                  )}
+                </createPlanForm.Field>
+
+
+                <createPlanForm.Field
+                  name="price"
+                  validators={{
+                    onChange: ({ value }) => {
+
+                      if (!value) {
+                        return "Price is required.";
+                      }
+
+                      const price =
+                        Number(value);
+
+                      if (
+                        Number.isNaN(price)
+                      ) {
+                        return "Please enter a valid price.";
+                      }
+
+                      if (price < 0) {
+                        return "Price cannot be negative.";
+                      }
+
+                      return undefined;
+                    },
+                  }}
+                >
+                  {(field) => (
+
+                    <div className="form-group">
+
+                      <label htmlFor="plan-price">
+                        Price (ETB)
+                      </label>
+
+                      <input
+                        id="plan-price"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={field.state.value}
+                        onChange={(event) =>
+                          field.handleChange(
+                            event.target.value
+                          )
+                        }
+                        onBlur={field.handleBlur}
+                      />
+
+                      {field.state.meta.errors.length >
+                        0 && (
+
+                        <p className="form-error">
+                          {String(
+                            field.state.meta.errors[0]
+                          )}
+                        </p>
+
+                      )}
+
+                    </div>
+
+                  )}
+                </createPlanForm.Field>
+
+
+                <createPlanForm.Field
+                  name="billingCycle"
+                  validators={{
+                    onChange: ({ value }) => {
+
+                      if (!value) {
+                        return "Billing cycle is required.";
+                      }
+
+                      return undefined;
+                    },
+                  }}
+                >
+                  {(field) => (
+
+                    <div className="form-group">
+
+                      <label htmlFor="billing-cycle">
+                        Billing Cycle
+                      </label>
+
+                      <select
+                        id="billing-cycle"
+                        value={field.state.value}
+                        onChange={(event) =>
+                          field.handleChange(
+                            event.target.value
+                          )
+                        }
+                        onBlur={field.handleBlur}
+                      >
+
+                        <option
+                          value=""
+                          disabled
+                        >
+                          Select billing cycle
+                        </option>
+
+                        <option value="WEEKLY">
+                          Weekly
+                        </option>
+
+                        <option value="MONTHLY">
+                          Monthly
+                        </option>
+
+                        <option value="YEARLY">
+                          Yearly
+                        </option>
+
+                      </select>
+
+                      {field.state.meta.errors.length >
+                        0 && (
+
+                        <p className="form-error">
+                          {String(
+                            field.state.meta.errors[0]
+                          )}
+                        </p>
+
+                      )}
+
+                    </div>
+
+                  )}
+                </createPlanForm.Field>
 
               </div>
 
-            </div>
 
-            <div className="modal-footer">
+              <div className="modal-footer">
 
-              <button
-                className="secondary-button"
-                onClick={() =>
-                  setShowCreatePlan(false)
-                }
-              >
-                Cancel
-              </button>
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={() => {
+                    setShowCreatePlan(false);
+                    createPlanForm.reset();
+                  }}
+                >
+                  Cancel
+                </button>
 
-              <button
-                className="primary-button"
-                onClick={handleCreatePlan}
-              >
-                Create Plan
-              </button>
+                <createPlanForm.Subscribe
+                  selector={(state) => [
+                    state.canSubmit,
+                    state.isSubmitting,
+                  ]}
+                >
+                  {([
+                    canSubmit,
+                    isSubmitting,
+                  ]) => (
 
-            </div>
+                    <button
+                      type="submit"
+                      className="primary-button"
+                      disabled={
+                        !canSubmit ||
+                        isSubmitting
+                      }
+                    >
+                      {isSubmitting
+                        ? "Creating..."
+                        : "Create Plan"}
+                    </button>
+
+                  )}
+                </createPlanForm.Subscribe>
+
+              </div>
+
+            </form>
 
           </div>
 
         </div>
 
       )}
+
 
       {/* =========================
           EDIT PLAN MODAL
@@ -1199,9 +1473,10 @@ function Billing() {
 
         <div
           className="modal-overlay"
-          onClick={() =>
-            setEditingPlan(null)
-          }
+          onClick={() => {
+            setEditingPlan(null);
+            editPlanForm.reset();
+          }}
         >
 
           <div
@@ -1220,133 +1495,280 @@ function Billing() {
                 </h2>
 
                 <p>
-                  Update the billing
-                  plan details.
+                  Update the billing plan.
                 </p>
 
               </div>
 
               <button
+                type="button"
                 className="modal-close"
-                onClick={() =>
-                  setEditingPlan(null)
-                }
+                onClick={() => {
+                  setEditingPlan(null);
+                  editPlanForm.reset();
+                }}
               >
                 ×
               </button>
 
             </div>
 
-            <div className="modal-body">
 
-              <div className="form-group">
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                editPlanForm.handleSubmit();
+              }}
+            >
 
-                <label htmlFor="edit-plan-name">
-                  Plan Name
-                </label>
+              <div className="modal-body">
 
-                <input
-                  id="edit-plan-name"
-                  type="text"
-                  value={editPlanName}
-                  onChange={(e) =>
-                    setEditPlanName(
-                      e.target.value
-                    )
-                  }
-                />
+                <editPlanForm.Field
+                  name="name"
+                  validators={{
+                    onChange: ({ value }) => {
 
-              </div>
+                      if (!value.trim()) {
+                        return "Plan name is required.";
+                      }
 
-              <div className="form-group">
+                      if (
+                        value.trim().length < 2
+                      ) {
+                        return "Plan name must be at least 2 characters.";
+                      }
 
-                <label htmlFor="edit-plan-price">
-                  Price (ETB)
-                </label>
-
-                <input
-                  id="edit-plan-price"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={editPlanPrice}
-                  onChange={(e) =>
-                    setEditPlanPrice(
-                      e.target.value
-                    )
-                  }
-                />
-
-              </div>
-
-              <div className="form-group">
-
-                <label htmlFor="edit-plan-cycle">
-                  Billing Cycle
-                </label>
-
-                <select
-                  id="edit-plan-cycle"
-                  value={editPlanBillingCycle}
-                  onChange={(e) =>
-                    setEditPlanBillingCycle(
-                      e.target.value
-                    )
-                  }
+                      return undefined;
+                    },
+                  }}
                 >
+                  {(field) => (
 
-                  <option
-                    value=""
-                    disabled
-                  >
-                    Select billing cycle
-                  </option>
+                    <div className="form-group">
 
-                  <option value="WEEKLY">
-                    Weekly
-                  </option>
+                      <label htmlFor="edit-plan-name">
+                        Plan Name
+                      </label>
 
-                  <option value="MONTHLY">
-                    Monthly
-                  </option>
+                      <input
+                        id="edit-plan-name"
+                        type="text"
+                        placeholder="Enter Plan Name"
+                        value={field.state.value}
+                        onChange={(event) =>
+                          field.handleChange(
+                            event.target.value
+                          )
+                        }
+                        onBlur={field.handleBlur}
+                      />
 
-                  <option value="YEARLY">
-                    Yearly
-                  </option>
+                      {field.state.meta.errors.length >
+                        0 && (
 
-                </select>
+                        <p className="form-error">
+                          {String(
+                            field.state.meta.errors[0]
+                          )}
+                        </p>
+
+                      )}
+
+                    </div>
+
+                  )}
+                </editPlanForm.Field>
+
+
+                <editPlanForm.Field
+                  name="price"
+                  validators={{
+                    onChange: ({ value }) => {
+
+                      if (!value) {
+                        return "Price is required.";
+                      }
+
+                      const price =
+                        Number(value);
+
+                      if (
+                        Number.isNaN(price)
+                      ) {
+                        return "Please enter a valid price.";
+                      }
+
+                      if (price < 0) {
+                        return "Price cannot be negative.";
+                      }
+
+                      return undefined;
+                    },
+                  }}
+                >
+                  {(field) => (
+
+                    <div className="form-group">
+
+                      <label htmlFor="edit-plan-price">
+                        Price (ETB)
+                      </label>
+
+                      <input
+                        id="edit-plan-price"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={field.state.value}
+                        onChange={(event) =>
+                          field.handleChange(
+                            event.target.value
+                          )
+                        }
+                        onBlur={field.handleBlur}
+                      />
+
+                      {field.state.meta.errors.length >
+                        0 && (
+
+                        <p className="form-error">
+                          {String(
+                            field.state.meta.errors[0]
+                          )}
+                        </p>
+
+                      )}
+
+                    </div>
+
+                  )}
+                </editPlanForm.Field>
+
+
+                <editPlanForm.Field
+                  name="billingCycle"
+                  validators={{
+                    onChange: ({ value }) => {
+
+                      if (!value) {
+                        return "Billing cycle is required.";
+                      }
+
+                      return undefined;
+                    },
+                  }}
+                >
+                  {(field) => (
+
+                    <div className="form-group">
+
+                      <label htmlFor="edit-billing-cycle">
+                        Billing Cycle
+                      </label>
+
+                      <select
+                        id="edit-billing-cycle"
+                        value={field.state.value}
+                        onChange={(event) =>
+                          field.handleChange(
+                            event.target.value
+                          )
+                        }
+                        onBlur={field.handleBlur}
+                      >
+
+                        <option
+                          value=""
+                          disabled
+                        >
+                          Select billing cycle
+                        </option>
+
+                        <option value="WEEKLY">
+                          Weekly
+                        </option>
+
+                        <option value="MONTHLY">
+                          Monthly
+                        </option>
+
+                        <option value="YEARLY">
+                          Yearly
+                        </option>
+
+                      </select>
+
+                      {field.state.meta.errors.length >
+                        0 && (
+
+                        <p className="form-error">
+                          {String(
+                            field.state.meta.errors[0]
+                          )}
+                        </p>
+
+                      )}
+
+                    </div>
+
+                  )}
+                </editPlanForm.Field>
 
               </div>
 
-            </div>
 
-            <div className="modal-footer">
+              <div className="modal-footer">
 
-              <button
-                className="secondary-button"
-                onClick={() =>
-                  setEditingPlan(null)
-                }
-              >
-                Cancel
-              </button>
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={() => {
+                    setEditingPlan(null);
+                    editPlanForm.reset();
+                  }}
+                >
+                  Cancel
+                </button>
 
-              <button
-                className="primary-button"
-                onClick={
-                  handleUpdatePlan
-                }
-              >
-                Save Changes
-              </button>
+                <editPlanForm.Subscribe
+                  selector={(state) => [
+                    state.canSubmit,
+                    state.isSubmitting,
+                  ]}
+                >
+                  {([
+                    canSubmit,
+                    isSubmitting,
+                  ]) => (
 
-            </div>
+                    <button
+                      type="submit"
+                      className="primary-button"
+                      disabled={
+                        !canSubmit ||
+                        isSubmitting
+                      }
+                    >
+                      {isSubmitting
+                        ? "Updating..."
+                        : "Update Plan"}
+                    </button>
+
+                  )}
+                </editPlanForm.Subscribe>
+
+              </div>
+
+            </form>
 
           </div>
 
         </div>
 
       )}
+
 
       {/* =========================
           SUBSCRIPTIONS
@@ -1356,7 +1778,7 @@ function Billing() {
 
         <div className="section-header">
 
-          <div>
+          <div className="section-header-content">
 
             <h2>
               Subscriptions
@@ -1369,16 +1791,22 @@ function Billing() {
 
           </div>
 
-          <button
-            className="primary-button"
-            onClick={
-              handleOpenCreateSubscription
-            }
-          >
-            + Create Subscription
-          </button>
+          <div className="section-header-actions">
+
+            <button
+              type="button"
+              className="primary-button"
+              onClick={
+                handleOpenCreateSubscription
+              }
+            >
+              + Create Subscription
+            </button>
+
+          </div>
 
         </div>
+
 
         {!subscriptionsLoaded ? (
 
@@ -1394,6 +1822,7 @@ function Billing() {
             </p>
 
             <button
+              type="button"
               className="primary-button"
               onClick={
                 handleLoadSubscriptions
@@ -1422,6 +1851,7 @@ function Billing() {
             </p>
 
             <button
+              type="button"
               className="primary-button"
               onClick={
                 handleLoadSubscriptions
@@ -1450,9 +1880,12 @@ function Billing() {
             </p>
 
             <button
+              type="button"
               className="primary-button"
               onClick={() =>
-                setShowSubscriptionsTable(true)
+                setShowSubscriptionsTable(
+                  true
+                )
               }
             >
               Show Subscriptions
@@ -1468,13 +1901,28 @@ function Billing() {
 
               <div className="table-header subscription-columns">
 
-                <span>Customer</span>
-                <span>Plan</span>
-                <span>Status</span>
-                <span>Period End</span>
-                <span>Action</span>
+                <span>
+                  Customer
+                </span>
+
+                <span>
+                  Plan
+                </span>
+
+                <span>
+                  Status
+                </span>
+
+                <span>
+                  Period End
+                </span>
+
+                <span>
+                  Action
+                </span>
 
               </div>
+
 
               {subscriptions.length === 0 ? (
 
@@ -1507,11 +1955,13 @@ function Billing() {
                         )}
                       </span>
 
+
                       <span>
                         {getPlanName(
                           subscription.planId
                         )}
                       </span>
+
 
                       <span>
 
@@ -1523,125 +1973,186 @@ function Billing() {
 
                       </span>
 
+
                       <span>
                         {formatDate(
                           subscription.currentPeriodEnd
                         )}
                       </span>
 
+
                       <span>
 
                         {subscription.status ===
                           "ACTIVE" && (
 
-                          <>
-                            {changingSubscriptionId ===
-                            subscription.id ? (
+                          changingSubscriptionId ===
+                          subscription.id ? (
 
-                              <div>
+                            <div className="table-row-actions">
 
-                                <select
-                                  value={
-                                    selectedChangePlan
-                                  }
-                                  onChange={(e) =>
-                                    setSelectedChangePlan(
-                                      e.target.value
-                                    )
-                                  }
-                                >
+                              <changePlanForm.Field
+                                name="planId"
+                                validators={{
+                                  onChange: ({
+                                    value,
+                                  }) => {
 
-                                  <option value="">
-                                    Select plan
-                                  </option>
-
-                                  {plans
-                                    .filter(
-                                      (plan) =>
-                                        plan.id !==
-                                        subscription.planId
-                                    )
-                                    .map(
-                                      (plan) => (
-
-                                        <option
-                                          key={plan.id}
-                                          value={plan.id}
-                                        >
-                                          {plan.name}
-                                        </option>
-
-                                      )
-                                    )}
-
-                                </select>
-
-                                <button
-                                  type="button"
-                                  className="primary-button"
-                                  onClick={
-                                    handleChangeSubscriptionPlan
-                                  }
-                                >
-                                  Save
-                                </button>
-
-                                <button
-                                  type="button"
-                                  className="secondary-button"
-                                  onClick={() => {
-                                    setChangingSubscriptionId(
-                                      null
-                                    );
-                                    setSelectedChangePlan(
-                                      ""
-                                    );
-                                  }}
-                                >
-                                  Cancel
-                                </button>
-
-                              </div>
-
-                            ) : (
-
-                              <>
-
-                                <button
-                                  type="button"
-                                  className="secondary-button"
-                                  onClick={() => {
-                                    if (
-                                      !plansLoaded
-                                    ) {
-                                      handleLoadPlans();
+                                    if (!value) {
+                                      return "Please select a plan.";
                                     }
 
-                                    setChangingSubscriptionId(
-                                      subscription.id
-                                    );
-                                  }}
-                                >
-                                  Change Plan
-                                </button>
+                                    if (
+                                      Number(value) ===
+                                      subscription.planId
+                                    ) {
+                                      return "Please select a different plan.";
+                                    }
 
-                                <button
-                                  type="button"
-                                  className="danger-button"
-                                  onClick={() =>
-                                    handleCancelSubscription(
-                                      subscription.id
-                                    )
-                                  }
-                                >
-                                  Cancel
-                                </button>
+                                    return undefined;
+                                  },
+                                }}
+                              >
+                                {(field) => (
 
-                              </>
+                                  <div>
 
-                            )}
+                                    <select
+                                      value={
+                                        field.state.value
+                                      }
+                                      onChange={(event) =>
+                                        field.handleChange(
+                                          event.target.value
+                                        )
+                                      }
+                                      onBlur={
+                                        field.handleBlur
+                                      }
+                                    >
 
-                          </>
+                                      <option value="">
+                                        Select plan
+                                      </option>
+
+                                      {plans
+                                        .filter(
+                                          (plan) =>
+                                            plan.id !==
+                                            subscription.planId
+                                        )
+                                        .map(
+                                          (plan) => (
+
+                                            <option
+                                              key={plan.id}
+                                              value={plan.id}
+                                            >
+                                              {plan.name}
+                                            </option>
+
+                                          )
+                                        )}
+
+                                    </select>
+
+
+                                    {field.state.meta.errors.length >
+                                      0 && (
+
+                                      <p className="form-error">
+                                        {String(
+                                          field.state.meta.errors[0]
+                                        )}
+                                      </p>
+
+                                    )}
+
+                                  </div>
+
+                                )}
+                              </changePlanForm.Field>
+
+
+                              <changePlanForm.Subscribe
+                                selector={(state) => [
+                                  state.canSubmit,
+                                  state.isSubmitting,
+                                ]}
+                              >
+                                {([
+                                  canSubmit,
+                                  isSubmitting,
+                                ]) => (
+
+                                  <button
+                                    type="button"
+                                    className="primary-button"
+                                    disabled={
+                                      !canSubmit ||
+                                      isSubmitting
+                                    }
+                                    onClick={() =>
+                                      changePlanForm.handleSubmit()
+                                    }
+                                  >
+                                    {isSubmitting
+                                      ? "Saving..."
+                                      : "Save"}
+                                  </button>
+
+                                )}
+                              </changePlanForm.Subscribe>
+
+
+                              <button
+                                type="button"
+                                className="secondary-button"
+                                onClick={() => {
+                                  setChangingSubscriptionId(
+                                    null
+                                  );
+
+                                  changePlanForm.reset();
+                                }}
+                              >
+                                Cancel
+                              </button>
+
+                            </div>
+
+                          ) : (
+
+                            <div className="table-row-actions">
+
+                              <button
+                                type="button"
+                                className="secondary-button"
+                                onClick={() =>
+                                  handleOpenChangePlan(
+                                    subscription.id
+                                  )
+                                }
+                              >
+                                Change Plan
+                              </button>
+
+
+                              <button
+                                type="button"
+                                className="danger-button"
+                                onClick={() =>
+                                  handleCancelSubscription(
+                                    subscription.id
+                                  )
+                                }
+                              >
+                                Cancel
+                              </button>
+
+                            </div>
+
+                          )
 
                         )}
 
@@ -1656,13 +2167,16 @@ function Billing() {
 
             </div>
 
+
             <div className="table-actions">
 
               <button
                 type="button"
                 className="secondary-button"
                 onClick={() =>
-                  setShowSubscriptionsTable(false)
+                  setShowSubscriptionsTable(
+                    false
+                  )
                 }
               >
                 Hide Subscriptions
@@ -1676,6 +2190,7 @@ function Billing() {
 
       </div>
 
+
       {/* =========================
           CREATE SUBSCRIPTION MODAL
           ========================= */}
@@ -1684,9 +2199,10 @@ function Billing() {
 
         <div
           className="modal-overlay"
-          onClick={() =>
-            setShowCreateSubscription(false)
-          }
+          onClick={() => {
+            setShowCreateSubscription(false);
+            createSubscriptionForm.reset();
+          }}
         >
 
           <div
@@ -1712,275 +2228,396 @@ function Billing() {
               </div>
 
               <button
+                type="button"
                 className="modal-close"
-                onClick={() =>
-                  setShowCreateSubscription(
-                    false
-                  )
-                }
+                onClick={() => {
+                  setShowCreateSubscription(false);
+                  createSubscriptionForm.reset();
+                }}
               >
                 ×
               </button>
 
             </div>
 
-            <div className="modal-body">
 
-              {/* CUSTOMER */}
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                createSubscriptionForm.handleSubmit();
+              }}
+            >
 
-              <div className="form-group">
+              <div className="modal-body">
 
-                <label htmlFor="customer-search">
-                  Customer
-                </label>
+                <createSubscriptionForm.Field
+                  name="customerId"
+                  validators={{
+                    onChange: ({ value }) => {
 
-                {customersError && (
-                  <p>
-                    {customersError}
-                  </p>
-                )}
+                      if (!value) {
+                        return "Please select a customer.";
+                      }
 
-                <div className="search-select">
+                      return undefined;
+                    },
+                  }}
+                >
+                  {(field) => (
 
-                  <input
-                    id="customer-search"
-                    type="text"
-                    placeholder={
-                      loadingCustomers
-                        ? "Loading customers..."
-                        : "Search customer by name or email"
-                    }
-                    value={
-                      customerSearch
-                    }
-                    disabled={
-                      loadingCustomers
-                    }
-                    onChange={(e) => {
+                    <div className="form-group">
 
-                      setCustomerSearch(
-                        e.target.value
-                      );
+                      <label htmlFor="customer-search">
+                        Customer
+                      </label>
 
-                      setSelectedCustomer("");
+                      {customersError && (
 
-                      setShowCustomerResults(
-                        true
-                      );
+                        <p className="form-error">
+                          {customersError}
+                        </p>
 
-                    }}
-                    onFocus={() =>
-                      setShowCustomerResults(
-                        true
-                      )
-                    }
-                  />
+                      )}
 
-                  {showCustomerResults &&
-                    customerSearch.trim() !== "" && (
+                      <div className="search-select">
 
-                    <div className="search-results">
+                        <input
+                          id="customer-search"
+                          type="text"
+                          placeholder={
+                            loadingCustomers
+                              ? "Loading customers..."
+                              : "Search customer by name or email"
+                          }
+                          value={customerSearch}
+                          disabled={
+                            loadingCustomers
+                          }
+                          onChange={(event) => {
 
-                      {filteredCustomers.length === 0 ? (
+                            setCustomerSearch(
+                              event.target.value
+                            );
 
-                        <div className="search-empty">
-                          No customers found
-                        </div>
+                            setShowCustomerResults(
+                              true
+                            );
 
-                      ) : (
+                            createSubscriptionForm.setFieldValue(
+                              "customerId",
+                              ""
+                            );
 
-                        filteredCustomers.map(
-                          (customer) => (
+                          }}
+                          onFocus={() =>
+                            setShowCustomerResults(
+                              true
+                            )
+                          }
+                          onBlur={() =>
+                            field.handleBlur()
+                          }
+                        />
 
-                            <button
-                              type="button"
-                              className="search-result"
-                              key={customer.id}
-                              onClick={() => {
 
-                                setSelectedCustomer(
-                                  String(
-                                    customer.id
+                        {showCustomerResults &&
+                          customerSearch.trim() !== "" && (
+
+                            <div className="search-results">
+
+                              {filteredCustomers.length ===
+                              0 ? (
+
+                                <div className="search-empty">
+                                  No customers found
+                                </div>
+
+                              ) : (
+
+                                filteredCustomers.map(
+                                  (customer) => (
+
+                                    <button
+                                      type="button"
+                                      className="search-result"
+                                      key={customer.id}
+                                      onClick={() => {
+
+                                        createSubscriptionForm.setFieldValue(
+                                          "customerId",
+                                          String(
+                                            customer.id
+                                          )
+                                        );
+
+                                        setCustomerSearch(
+                                          `${customer.firstName} ${customer.lastName}`
+                                        );
+
+                                        setShowCustomerResults(
+                                          false
+                                        );
+
+                                      }}
+                                    >
+
+                                      <strong>
+                                        {
+                                          customer.firstName
+                                        }{" "}
+                                        {
+                                          customer.lastName
+                                        }
+                                      </strong>
+
+                                      <span>
+                                        {
+                                          customer.email
+                                        }
+                                      </span>
+
+                                    </button>
+
                                   )
-                                );
+                                )
 
-                                setCustomerSearch(
-                                  `${customer.firstName} ${customer.lastName}`
-                                );
+                              )}
 
-                                setShowCustomerResults(
-                                  false
-                                );
+                            </div>
 
-                              }}
-                            >
+                          )}
 
-                              <strong>
-                                {customer.firstName}{" "}
-                                {customer.lastName}
-                              </strong>
+                      </div>
 
-                              <span>
-                                {customer.email}
-                              </span>
 
-                            </button>
+                      {field.state.meta.errors.length >
+                        0 && (
 
-                          )
-                        )
+                        <p className="form-error">
+                          {String(
+                            field.state.meta.errors[0]
+                          )}
+                        </p>
 
                       )}
 
                     </div>
 
                   )}
+                </createSubscriptionForm.Field>
 
-                </div>
 
-              </div>
+                <createSubscriptionForm.Field
+                  name="planId"
+                  validators={{
+                    onChange: ({ value }) => {
 
-              {/* PLAN */}
+                      if (!value) {
+                        return "Please select a plan.";
+                      }
 
-              <div className="form-group">
+                      return undefined;
+                    },
+                  }}
+                >
+                  {(field) => (
 
-                <label htmlFor="plan-search">
-                  Plan
-                </label>
+                    <div className="form-group">
 
-                <div className="search-select">
+                      <label htmlFor="plan-search">
+                        Plan
+                      </label>
 
-                  <input
-                    id="plan-search"
-                    type="text"
-                    placeholder="Search plan"
-                    value={planSearch}
-                    onChange={(e) => {
+                      <div className="search-select">
 
-                      setPlanSearch(
-                        e.target.value
-                      );
+                        <input
+                          id="plan-search"
+                          type="text"
+                          placeholder="Search plan"
+                          value={planSearch}
+                          onChange={(event) => {
 
-                      setSelectedPlan("");
+                            setPlanSearch(
+                              event.target.value
+                            );
 
-                      setShowPlanResults(
-                        true
-                      );
+                            setShowPlanResults(
+                              true
+                            );
 
-                    }}
-                    onFocus={() =>
-                      setShowPlanResults(
-                        true
-                      )
-                    }
-                  />
+                            createSubscriptionForm.setFieldValue(
+                              "planId",
+                              ""
+                            );
 
-                  {showPlanResults &&
-                    planSearch.trim() !== "" && (
+                          }}
+                          onFocus={() =>
+                            setShowPlanResults(
+                              true
+                            )
+                          }
+                          onBlur={() =>
+                            field.handleBlur()
+                          }
+                        />
 
-                    <div className="search-results">
 
-                      {filteredPlans.length === 0 ? (
+                        {showPlanResults &&
+                          planSearch.trim() !== "" && (
 
-                        <div className="search-empty">
-                          No plans found
-                        </div>
+                            <div className="search-results">
 
-                      ) : (
+                              {filteredPlans.length ===
+                              0 ? (
 
-                        filteredPlans.map(
-                          (plan) => (
+                                <div className="search-empty">
+                                  No plans found
+                                </div>
 
-                            <button
-                              type="button"
-                              className="search-result"
-                              key={plan.id}
-                              onClick={() => {
+                              ) : (
 
-                                setSelectedPlan(
-                                  String(
-                                    plan.id
+                                filteredPlans.map(
+                                  (plan) => (
+
+                                    <button
+                                      type="button"
+                                      className="search-result"
+                                      key={plan.id}
+                                      onClick={() => {
+
+                                        createSubscriptionForm.setFieldValue(
+                                          "planId",
+                                          String(
+                                            plan.id
+                                          )
+                                        );
+
+                                        setPlanSearch(
+                                          plan.name
+                                        );
+
+                                        setShowPlanResults(
+                                          false
+                                        );
+
+                                      }}
+                                    >
+
+                                      <strong>
+                                        {plan.name}
+                                      </strong>
+
+                                      <span>
+                                        ETB{" "}
+                                        {(
+                                          plan.priceCents /
+                                          100
+                                        ).toFixed(2)}
+                                        {" / "}
+                                        {
+                                          plan.billingCycle
+                                        }
+                                      </span>
+
+                                    </button>
+
                                   )
-                                );
+                                )
 
-                                setPlanSearch(
-                                  plan.name
-                                );
+                              )}
 
-                                setShowPlanResults(
-                                  false
-                                );
+                            </div>
 
-                              }}
-                            >
+                          )}
 
-                              <strong>
-                                {plan.name}
-                              </strong>
+                      </div>
 
-                              <span>
-                                ETB{" "}
-                                {(
-                                  plan.priceCents / 100
-                                ).toFixed(2)}
-                                {" / "}
-                                {plan.billingCycle}
-                              </span>
 
-                            </button>
+                      {field.state.meta.errors.length >
+                        0 && (
 
-                          )
-                        )
+                        <p className="form-error">
+                          {String(
+                            field.state.meta.errors[0]
+                          )}
+                        </p>
 
                       )}
 
                     </div>
 
                   )}
-
-                </div>
+                </createSubscriptionForm.Field>
 
               </div>
 
-            </div>
 
-            <div className="modal-footer">
+              <div className="modal-footer">
 
-              <button
-                className="secondary-button"
-                onClick={() => {
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={() => {
+                    setShowCreateSubscription(
+                      false
+                    );
 
-                  setShowCreateSubscription(false);
+                    setCustomerSearch("");
+                    setPlanSearch("");
 
-                  setSelectedCustomer("");
-                  setSelectedPlan("");
+                    setShowCustomerResults(
+                      false
+                    );
 
-                  setCustomerSearch("");
-                  setPlanSearch("");
+                    setShowPlanResults(
+                      false
+                    );
 
-                  setShowCustomerResults(false);
-                  setShowPlanResults(false);
+                    createSubscriptionForm.reset();
+                  }}
+                >
+                  Cancel
+                </button>
 
-                }}
-              >
-                Cancel
-              </button>
 
-              <button
-                className="primary-button"
-                onClick={
-                  handleCreateSubscription
-                }
-              >
-                Create Subscription
-              </button>
+                <createSubscriptionForm.Subscribe
+                  selector={(state) => [
+                    state.canSubmit,
+                    state.isSubmitting,
+                  ]}
+                >
+                  {([
+                    canSubmit,
+                    isSubmitting,
+                  ]) => (
 
-            </div>
+                    <button
+                      type="submit"
+                      className="primary-button"
+                      disabled={
+                        !canSubmit ||
+                        isSubmitting
+                      }
+                    >
+                      {isSubmitting
+                        ? "Creating..."
+                        : "Create Subscription"}
+                    </button>
+
+                  )}
+                </createSubscriptionForm.Subscribe>
+
+              </div>
+
+            </form>
 
           </div>
 
         </div>
 
       )}
+
 
       {/* =========================
           INVOICES
@@ -1990,7 +2627,7 @@ function Billing() {
 
         <div className="section-header">
 
-          <div>
+          <div className="section-header-content">
 
             <h2>
               Invoices
@@ -2004,6 +2641,7 @@ function Billing() {
           </div>
 
         </div>
+
 
         {!invoicesLoaded ? (
 
@@ -2019,6 +2657,7 @@ function Billing() {
             </p>
 
             <button
+              type="button"
               className="primary-button"
               onClick={handleLoadInvoices}
               disabled={loadingInvoices}
@@ -2043,6 +2682,7 @@ function Billing() {
             </p>
 
             <button
+              type="button"
               className="primary-button"
               onClick={handleLoadInvoices}
               disabled={loadingInvoices}
@@ -2067,9 +2707,12 @@ function Billing() {
             </p>
 
             <button
+              type="button"
               className="primary-button"
               onClick={() =>
-                setShowInvoicesTable(true)
+                setShowInvoicesTable(
+                  true
+                )
               }
             >
               Show Invoices
@@ -2088,9 +2731,9 @@ function Billing() {
                 className="plans-search-input"
                 placeholder="Search invoices by ID, customer, or status..."
                 value={invoiceSearch}
-                onChange={(e) =>
+                onChange={(event) =>
                   setInvoiceSearch(
-                    e.target.value
+                    event.target.value
                   )
                 }
               />
@@ -2108,19 +2751,41 @@ function Billing() {
 
             </div>
 
+
             <div className="billing-table">
 
               <div className="table-header invoice-columns">
 
-                <span>Invoice</span>
-                <span>Customer</span>
-                <span>Amount</span>
-                <span>Status</span>
-                <span>Due Date</span>
-                <span>Paid At</span>
-                <span>Action</span>
+                <span>
+                  Invoice
+                </span>
+
+                <span>
+                  Customer
+                </span>
+
+                <span>
+                  Amount
+                </span>
+
+                <span>
+                  Status
+                </span>
+
+                <span>
+                  Due Date
+                </span>
+
+                <span>
+                  Paid At
+                </span>
+
+                <span>
+                  Action
+                </span>
 
               </div>
+
 
               {filteredInvoices.length === 0 ? (
 
@@ -2158,7 +2823,10 @@ function Billing() {
 
                       <span>
                         ETB{" "}
-                        {(invoice.amountCents / 100).toFixed(2)}
+                        {(
+                          invoice.amountCents /
+                          100
+                        ).toFixed(2)}
                       </span>
 
                       <span>
@@ -2185,12 +2853,13 @@ function Billing() {
                           : "-"}
                       </span>
 
-                      <span>
+                      <span className="table-row-actions">
 
                         {invoice.status ===
                           "PENDING" && (
 
                           <button
+                            type="button"
                             className="primary-button"
                             onClick={() =>
                               handlePayInvoice(
@@ -2223,13 +2892,16 @@ function Billing() {
 
             </div>
 
+
             <div className="table-actions">
 
               <button
                 type="button"
                 className="secondary-button"
                 onClick={() =>
-                  setShowInvoicesTable(false)
+                  setShowInvoicesTable(
+                    false
+                  )
                 }
               >
                 Hide Invoices
@@ -2243,6 +2915,7 @@ function Billing() {
 
       </div>
 
+
       {/* =========================
           PAYMENT ATTEMPTS
           ========================= */}
@@ -2251,7 +2924,7 @@ function Billing() {
 
         <div className="section-header">
 
-          <div>
+          <div className="section-header-content">
 
             <h2>
               Payment Attempts
@@ -2265,6 +2938,7 @@ function Billing() {
           </div>
 
         </div>
+
 
         {!paymentAttemptsLoaded ? (
 
@@ -2280,6 +2954,7 @@ function Billing() {
             </p>
 
             <button
+              type="button"
               className="primary-button"
               onClick={
                 handleLoadPaymentAttempts
@@ -2308,6 +2983,7 @@ function Billing() {
             </p>
 
             <button
+              type="button"
               className="primary-button"
               onClick={
                 handleLoadPaymentAttempts
@@ -2336,9 +3012,12 @@ function Billing() {
             </p>
 
             <button
+              type="button"
               className="primary-button"
               onClick={() =>
-                setShowPaymentAttemptsTable(true)
+                setShowPaymentAttemptsTable(
+                  true
+                )
               }
             >
               Show Payment Attempts
@@ -2356,10 +3035,12 @@ function Billing() {
                 type="text"
                 className="plans-search-input"
                 placeholder="Search by attempt ID, invoice ID, or status..."
-                value={paymentAttemptSearch}
-                onChange={(e) =>
+                value={
+                  paymentAttemptSearch
+                }
+                onChange={(event) =>
                   setPaymentAttemptSearch(
-                    e.target.value
+                    event.target.value
                   )
                 }
               />
@@ -2381,18 +3062,32 @@ function Billing() {
 
             </div>
 
+
             <div className="billing-table">
 
               <div className="table-header payment-attempt-columns">
 
-                <span>Attempt</span>
-                <span>Invoice</span>
-                <span>Status</span>
-                <span>Attempted At</span>
+                <span>
+                  Attempt
+                </span>
+
+                <span>
+                  Invoice
+                </span>
+
+                <span>
+                  Status
+                </span>
+
+                <span>
+                  Attempted At
+                </span>
 
               </div>
 
-              {filteredPaymentAttempts.length === 0 ? (
+
+              {filteredPaymentAttempts.length ===
+              0 ? (
 
                 <div className="table-empty">
 
@@ -2449,13 +3144,16 @@ function Billing() {
 
             </div>
 
+
             <div className="table-actions">
 
               <button
                 type="button"
                 className="secondary-button"
                 onClick={() =>
-                  setShowPaymentAttemptsTable(false)
+                  setShowPaymentAttemptsTable(
+                    false
+                  )
                 }
               >
                 Hide Payment Attempts
@@ -2469,6 +3167,7 @@ function Billing() {
 
       </div>
 
+
       {/* =========================
           BILLING HEALTH
           ========================= */}
@@ -2480,7 +3179,7 @@ function Billing() {
 
           <div className="section-header">
 
-            <div>
+            <div className="section-header-content">
 
               <h2>
                 Billing Health
@@ -2494,42 +3193,64 @@ function Billing() {
 
           </div>
 
+
           <div className="billing-stats">
 
             {subscriptionsLoaded && (
+
               <div className="billing-stat-card">
 
-                <span>
-                  Canceled Subscriptions
-                </span>
+                <div className="billing-stat-card-top">
 
-                <strong>
-                  {canceledSubscriptions}
-                </strong>
+                  <div className="billing-stat-card-content">
 
-                <small>
-                  Canceled customer subscriptions
-                </small>
+                    <span>
+                      Canceled Subscriptions
+                    </span>
+
+                    <strong>
+                      {canceledSubscriptions}
+                    </strong>
+
+                    <small>
+                      Canceled customer subscriptions
+                    </small>
+
+                  </div>
+
+                </div>
 
               </div>
+
             )}
 
+
             {paymentAttemptsLoaded && (
+
               <div className="billing-stat-card">
 
-                <span>
-                  Failed Payments
-                </span>
+                <div className="billing-stat-card-top">
 
-                <strong>
-                  {failedPaymentAttempts}
-                </strong>
+                  <div className="billing-stat-card-content">
 
-                <small>
-                  Failed payment attempts
-                </small>
+                    <span>
+                      Failed Payments
+                    </span>
+
+                    <strong>
+                      {failedPaymentAttempts}
+                    </strong>
+
+                    <small>
+                      Failed payment attempts
+                    </small>
+
+                  </div>
+
+                </div>
 
               </div>
+
             )}
 
           </div>

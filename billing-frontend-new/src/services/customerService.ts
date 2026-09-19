@@ -1,3 +1,5 @@
+import api from "./api";
+
 export interface Customer {
   id: number;
   firstName: string;
@@ -15,97 +17,62 @@ export interface CustomerRequest {
   email: string;
 }
 
-const CUSTOMER_API_URL =
-  "http://localhost:8083/api/accounts";
-
-/* GET ALL CUSTOMERS */
-
 export const getCustomers = async (): Promise<Customer[]> => {
-  const response = await fetch(CUSTOMER_API_URL);
+  const response = await api.get("/api/accounts");
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch customers");
-  }
-
-  return response.json();
+  return response.data;
 };
-
-/* GET ONE CUSTOMER */
 
 export const getCustomerById = async (
   id: number
 ): Promise<Customer> => {
-  const response = await fetch(
-    `${CUSTOMER_API_URL}/${id}`
-  );
+  const response = await api.get(`/api/accounts/${id}`);
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch customer");
-  }
-
-  return response.json();
+  return response.data;
 };
 
-/* CREATE CUSTOMER */
+export const getCurrentCustomer = async (): Promise<Customer> => {
+  const response = await api.get("/api/accounts/me");
+
+  return response.data;
+};
 
 export const createCustomer = async (
   customer: CustomerRequest
 ): Promise<Customer> => {
-  const response = await fetch(
-    CUSTOMER_API_URL,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(customer),
-    }
+  const response = await api.post(
+    "/api/accounts",
+    customer
   );
 
-  if (!response.ok) {
-    throw new Error("Failed to create customer");
-  }
-
-  return response.json();
+  return response.data;
 };
-
-/* UPDATE CUSTOMER */
 
 export const updateCustomer = async (
   id: number,
   customer: CustomerRequest
 ): Promise<Customer> => {
-  const response = await fetch(
-    `${CUSTOMER_API_URL}/${id}`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(customer),
-    }
+  const response = await api.put(
+    `/api/accounts/${id}`,
+    customer
   );
 
-  if (!response.ok) {
-    throw new Error("Failed to update customer");
-  }
-
-  return response.json();
+  return response.data;
 };
 
-/* DELETE CUSTOMER */
+export const updateCurrentCustomer = async (
+  customer: CustomerRequest
+): Promise<Customer> => {
+  const response = await api.put(
+    "/api/accounts/me",
+    customer
+  );
+
+  return response.data;
+};
 
 export const deleteCustomer = async (
   id: number
 ): Promise<void> => {
-  const response = await fetch(
-    `${CUSTOMER_API_URL}/${id}`,
-    {
-      method: "DELETE",
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to delete customer");
-  }
+  await api.delete(`/api/accounts/${id}`);
 };

@@ -2,7 +2,11 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  Navigate,
+  redirect 
 } from "@tanstack/react-router";
+
+import useAuthStore from "../stores/authStore";
 
 import App from "../App";
 
@@ -22,6 +26,12 @@ const rootRoute = createRootRoute({
   component: App,
 });
 
+const indexRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/",
+  component: () => <Navigate to="/user/dashboard" />,
+});
+
 
 /* =========================
    ADMIN ROUTES
@@ -30,6 +40,23 @@ const rootRoute = createRootRoute({
 const adminRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/admin",
+
+  beforeLoad: () => {
+    const { isAuthenticated, roles } =
+      useAuthStore.getState();
+
+    if (!isAuthenticated) {
+      throw redirect({
+        to: "/user/dashboard",
+      });
+    }
+
+    if (!roles.includes("ADMIN")) {
+      throw redirect({
+        to: "/user/dashboard",
+      });
+    }
+  },
 });
 
 const adminDashboardRoute = createRoute({
@@ -102,6 +129,7 @@ const userProfileRoute = createRoute({
    ========================= */
 
 const routeTree = rootRoute.addChildren([
+  indexRoute,
 
   adminRoute.addChildren([
     adminDashboardRoute,
@@ -117,9 +145,7 @@ const routeTree = rootRoute.addChildren([
     userPaymentHistoryRoute,
     userProfileRoute,
   ]),
-
 ]);
-
 
 export const router = createRouter({
   routeTree,

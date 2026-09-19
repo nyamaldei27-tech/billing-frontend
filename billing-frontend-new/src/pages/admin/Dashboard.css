@@ -1,7 +1,12 @@
+/* =========================
+   DASHBOARD PAGE
+   ========================= */
+
 .dashboard-page {
   padding: 30px;
   max-width: 1400px;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .dashboard-header {
@@ -11,6 +16,7 @@
 .dashboard-header h1 {
   margin: 0 0 8px;
   font-size: 32px;
+  font-weight: 700;
 }
 
 .dashboard-header p {
@@ -70,12 +76,17 @@
 }
 
 .dashboard-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
   padding: 22px 24px;
 }
 
 .dashboard-section-header h2 {
   margin: 0 0 6px;
   font-size: 20px;
+  font-weight: 700;
 }
 
 .dashboard-section-header p {
@@ -86,16 +97,71 @@
 
 
 /* =========================
+   SECTION ACTION BUTTONS
+   ========================= */
+
+.dashboard-section-header button {
+  flex-shrink: 0;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+  padding: 9px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.dashboard-section-header button:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.dashboard-section-header button:active {
+  transform: translateY(1px);
+}
+
+
+/* =========================
    TABLE
    ========================= */
+
+.dashboard-table {
+  width: 100%;
+  overflow-x: auto;
+}
 
 .dashboard-table-header,
 .dashboard-table-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1.2fr;
   align-items: center;
+  gap: 16px;
   padding: 16px 24px;
   border-top: 1px solid #e5e7eb;
+  box-sizing: border-box;
+}
+
+/*
+ * Invoice table:
+ *
+ * Invoice
+ * Customer
+ * Amount
+ * Status
+ * Action
+ */
+.dashboard-table-header,
+.dashboard-table-row {
+  grid-template-columns:
+    0.8fr
+    1fr
+    1fr
+    1fr
+    0.9fr;
 }
 
 .dashboard-table-header {
@@ -104,10 +170,12 @@
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .dashboard-table-row {
   font-size: 14px;
+  min-height: 58px;
 }
 
 .dashboard-table-row:hover {
@@ -116,17 +184,51 @@
 
 
 /* =========================
-   STATUS
+   TABLE ACTION BUTTONS
+   ========================= */
+
+.dashboard-table-row button {
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+  border-radius: 7px;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.dashboard-table-row button:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.dashboard-table-row button:active {
+  transform: translateY(1px);
+}
+
+
+/* =========================
+   STATUS BADGES
    ========================= */
 
 .dashboard-status {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   padding: 5px 10px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
+  white-space: nowrap;
 }
+
+
+/* Invoice statuses */
 
 .dashboard-status-paid {
   background: #ecfdf5;
@@ -139,6 +241,31 @@
 }
 
 .dashboard-status-failed {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.dashboard-status-canceled {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+
+/* =========================
+   CHURN RISK BADGES
+   ========================= */
+
+.dashboard-status-low {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.dashboard-status-medium {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.dashboard-status-high {
   background: #fef2f2;
   color: #b91c1c;
 }
@@ -189,44 +316,6 @@
 
 
 /* =========================
-   RESPONSIVE
-   ========================= */
-
-@media (max-width: 900px) {
-  .dashboard-stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 600px) {
-  .dashboard-page {
-    padding: 20px;
-  }
-
-  .dashboard-stats {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-table {
-    overflow-x: auto;
-  }
-
-  .dashboard-table-header,
-  .dashboard-table-row {
-    min-width: 650px;
-  }
-
-  .subscription-summary {
-    grid-template-columns: 1fr;
-  }
-
-  .summary-item {
-    border-right: none;
-    border-bottom: 1px solid #e5e7eb;
-  }
-}
-
-/* =========================
    REVENUE CHART
    ========================= */
 
@@ -240,6 +329,7 @@
   padding: 0 24px 20px;
   box-sizing: border-box;
 }
+
 
 /* =========================
    PLAN MANAGEMENT
@@ -302,10 +392,16 @@
 .plans-management-row {
   min-width: 760px;
   display: grid;
-  grid-template-columns: 70px 1.5fr 1fr 1fr 180px;
+  grid-template-columns:
+    70px
+    1.5fr
+    1fr
+    1fr
+    180px;
   align-items: center;
   gap: 16px;
   padding: 14px 24px;
+  box-sizing: border-box;
 }
 
 .plans-management-header {
@@ -360,7 +456,63 @@
   opacity: 0.8;
 }
 
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media (max-width: 1100px) {
+  .dashboard-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard-table-header,
+  .dashboard-table-row {
+    min-width: 720px;
+  }
+}
+
+
 @media (max-width: 700px) {
+  .dashboard-page {
+    padding: 20px;
+  }
+
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-section-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dashboard-section-header button {
+    width: 100%;
+  }
+
+  .dashboard-table {
+    overflow-x: auto;
+  }
+
+  .dashboard-table-header,
+  .dashboard-table-row {
+    min-width: 720px;
+  }
+
+  .subscription-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-item {
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .summary-item:last-child {
+    border-bottom: none;
+  }
+
   .plans-toolbar {
     flex-direction: column;
     align-items: stretch;
@@ -374,5 +526,33 @@
   .plans-management-row {
     padding-left: 16px;
     padding-right: 16px;
+  }
+}
+
+
+@media (max-width: 500px) {
+  .dashboard-page {
+    padding: 16px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 27px;
+  }
+
+  .dashboard-card {
+    padding: 18px;
+  }
+
+  .card-value {
+    font-size: 24px;
+  }
+
+  .dashboard-section-header {
+    padding: 18px;
+  }
+
+  .revenue-chart {
+    padding-left: 12px;
+    padding-right: 12px;
   }
 }

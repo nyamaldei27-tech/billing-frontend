@@ -232,11 +232,10 @@ function InvoiceDetails() {
 
           </div>
 
-        </div>
-
         {/* PAYMENT ACTION */}
 
         {invoice.status === "PENDING" && (
+          <div className="invoice-details-divider">
           <div className="invoice-payment-section">
 
             <button
@@ -253,15 +252,84 @@ function InvoiceDetails() {
             </button>
 
           </div>
+        </div>
         )}
 
+     </div>
+     
         {/* PAID MESSAGE */}
 
-        {invoice.status === "PAID" && (
-          <div className="invoice-paid-message">
-            This invoice has already been paid.
-          </div>
-        )}
+{invoice.status === "PAID" && (
+  <div className="invoice-paid-section">
+
+    <div className="invoice-paid-message">
+      This invoice has already been paid.
+    </div>
+
+    {invoice.receiptUrl && (
+      <div className="invoice-receipt-actions">
+
+        <a
+          href={invoice.receiptUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="invoice-receipt-button"
+        >
+          View Receipt
+        </a>
+
+        <button
+  type="button"
+  className="invoice-download-button"
+  onClick={async () => {
+    if (!invoice.receiptUrl) return;
+
+    try {
+      const response = await fetch(
+        invoice.receiptUrl
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          "Failed to download receipt."
+        );
+      }
+
+      const blob = await response.blob();
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link =
+        document.createElement("a");
+
+      link.href = url;
+      link.download =
+        `invoice-${invoice.id}-receipt.pdf`;
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error(
+        "Failed to download receipt:",
+        error
+      );
+    }
+  }}
+>
+  Download PDF
+</button>
+
+      </div>
+    )}
+
+  </div>
+)}
 
       </div>
 
