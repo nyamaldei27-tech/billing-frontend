@@ -737,9 +737,7 @@ function Billing() {
           ========================= */}
 
       <div className="billing-header">
-
         <div>
-
           <h1>
             Billing
           </h1>
@@ -748,11 +746,8 @@ function Billing() {
             Manage plans, subscriptions,
             invoices, and payments.
           </p>
-
         </div>
-
       </div>
-
 
       {/* =========================
           OVERVIEW CARDS
@@ -760,120 +755,88 @@ function Billing() {
 
       <div className="billing-stats">
 
-        <div className="billing-stat-card">
+  <div className="billing-stat-card">
+    <div className="billing-stat-card-top">
 
-          <div className="billing-stat-card-top">
+      <div className="billing-stat-card-content">
+        <span>Total Plans</span>
 
-            <div className="billing-stat-card-content">
+        <strong>
+          {plansLoaded ? plans.length : "—"}
+        </strong>
 
-              <span>
-                Total Plans
-              </span>
-
-              <strong>
-                {plansLoaded
-                  ? plans.length
-                  : "—"}
-              </strong>
-
-              <small>
-                Available billing plans
-              </small>
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div className="billing-stat-card">
-
-          <div className="billing-stat-card-top">
-
-            <div className="billing-stat-card-content">
-
-              <span>
-                Active Subscriptions
-              </span>
-
-              <strong>
-                {subscriptionsLoaded
-                  ? activeSubscriptions
-                  : "—"}
-              </strong>
-
-              <small>
-                Currently active customers
-              </small>
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div className="billing-stat-card">
-
-          <div className="billing-stat-card-top">
-
-            <div className="billing-stat-card-content">
-
-              <span>
-                Pending Invoices
-              </span>
-
-              <strong>
-                {invoicesLoaded
-                  ? pendingInvoices
-                  : "—"}
-              </strong>
-
-              <small>
-                Awaiting payment
-              </small>
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div className="billing-stat-card">
-
-          <div className="billing-stat-card-top">
-
-            <div className="billing-stat-card-content">
-
-              <span>
-                Total Revenue
-              </span>
-
-              <strong>
-                {invoicesLoaded
-                  ? `ETB ${totalRevenue.toLocaleString(
-                      undefined,
-                      {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      }
-                    )}`
-                  : "—"}
-              </strong>
-
-              <small>
-                From paid invoices
-              </small>
-
-            </div>
-
-          </div>
-
-        </div>
-
+        <small>
+          Available billing plans
+        </small>
       </div>
+
+    </div>
+  </div>
+
+
+  <div className="billing-stat-card">
+    <div className="billing-stat-card-top">
+
+      <div className="billing-stat-card-content">
+        <span>Active Subscriptions</span>
+
+        <strong>
+          {subscriptionsLoaded ? activeSubscriptions : "—"}
+        </strong>
+
+        <small>
+          Currently active customers
+        </small>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div className="billing-stat-card">
+    <div className="billing-stat-card-top">
+
+      <div className="billing-stat-card-content">
+        <span>Pending Invoices</span>
+
+        <strong>
+          {invoicesLoaded ? pendingInvoices : "—"}
+        </strong>
+
+        <small>
+          Awaiting payment
+        </small>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div className="billing-stat-card">
+    <div className="billing-stat-card-top">
+
+      <div className="billing-stat-card-content">
+        <span>Total Revenue</span>
+
+        <strong>
+          {invoicesLoaded
+            ? `ETB ${totalRevenue.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}`
+            : "—"}
+        </strong>
+
+        <small>
+          From paid invoices
+        </small>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+            
 
 
       {/* =========================
@@ -2642,7 +2605,6 @@ function Billing() {
 
         </div>
 
-
         {!invoicesLoaded ? (
 
           <div className="table-empty">
@@ -2669,56 +2631,54 @@ function Billing() {
 
           </div>
 
-        ) : invoicesError ? (
+  ) : invoicesError ? (
 
-          <div className="table-empty">
+    <div className="table-empty">
 
-            <strong>
-              Unable to load invoices
-            </strong>
+      <strong>
+        Unable to load invoices
+      </strong>
 
-            <p>
-              {invoicesError}
-            </p>
+      <p>
+        {invoicesError}
+      </p>
 
-            <button
-              type="button"
-              className="primary-button"
-              onClick={handleLoadInvoices}
-              disabled={loadingInvoices}
-            >
-              {loadingInvoices
-                ? "Loading..."
-                : "Try Again"}
-            </button>
+      <button
+        type="button"
+        className="primary-button"
+        onClick={handleLoadInvoices}
+        disabled={loadingInvoices}
+      >
+        {loadingInvoices
+          ? "Loading..."
+          : "Try Again"}
+      </button>
 
-          </div>
+    </div>
 
-        ) : !showInvoicesTable ? (
+  ) : !showInvoicesTable ? (
 
-          <div className="table-empty">
+    <div className="table-empty">
 
-            <strong>
-              Invoices loaded
-            </strong>
+      <strong>
+        Invoices loaded
+      </strong>
 
-            <p>
-              The invoice list is currently hidden.
-            </p>
+      <p>
+        The invoice list is currently hidden.
+      </p>
 
-            <button
-              type="button"
-              className="primary-button"
-              onClick={() =>
-                setShowInvoicesTable(
-                  true
-                )
-              }
-            >
-              Show Invoices
-            </button>
+      <button
+        type="button"
+        className="primary-button"
+        onClick={() =>
+          setShowInvoicesTable(true)
+        }
+      >
+        Show Invoices
+      </button>
 
-          </div>
+    </div>
 
         ) : (
 
@@ -2853,33 +2813,37 @@ function Billing() {
                           : "-"}
                       </span>
 
-                      <span className="table-row-actions">
+                      <span>
 
-                        {invoice.status ===
-                          "PENDING" && (
+                        <div className="table-row-actions">
 
-                          <button
-                            type="button"
-                            className="primary-button"
-                            onClick={() =>
-                              handlePayInvoice(
-                                invoice.id
-                              )
-                            }
-                          >
-                            Pay
-                          </button>
+                          {invoice.status ===
+                            "PENDING" && (
 
-                        )}
+                            <button
+                              type="button"
+                              className="primary-button"
+                              onClick={() =>
+                                handlePayInvoice(
+                                  invoice.id
+                                )
+                              }
+                            >
+                              Pay
+                            </button>
 
-                        {invoice.status ===
-                          "PAID" && (
+                          )}
 
-                          <span className="paid-label">
-                            Paid
-                          </span>
+                          {invoice.status ===
+                            "PAID" && (
 
-                        )}
+                            <span className="paid-label">
+                              Paid
+                            </span>
+
+                          )}
+
+                        </div>
 
                       </span>
 
@@ -2912,8 +2876,7 @@ function Billing() {
           </>
 
         )}
-
-      </div>
+</div>
 
 
       {/* =========================
@@ -3257,10 +3220,11 @@ function Billing() {
 
         </div>
 
-      )}
+       )}
+    
+  </div>
+);
 
-    </div>
-  );
 }
 
 export default Billing;

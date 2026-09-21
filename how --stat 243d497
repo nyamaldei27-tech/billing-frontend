@@ -1,0 +1,33 @@
+[33mcommit d8fa75455a5e7c004ec2218d690aeeb45b208091[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Nyamal Chuol <nyamaldei27@gmail.com>
+Date:   Wed Aug 26 13:35:49 2026 +0300
+
+    This is the new account service containing customer funfunctionality for microservices introduction
+
+ account-service/.idea/.gitignore                   |  10 [32m+[m
+ account-service/account-service/.gitattributes     |   2 [32m+[m
+ account-service/account-service/.gitignore         |  33 [32m+++[m
+ .../.mvn/wrapper/maven-wrapper.properties          |   3 [32m+[m
+ account-service/account-service/Dockerfile         |  14 [32m+[m
+ account-service/account-service/docker-test.txt    |   1 [32m+[m
+ account-service/account-service/mvnw               | 295 [32m+++++++++++++++++++++[m
+ account-service/account-service/mvnw.cmd           | 189 [32m+++++++++++++[m
+ account-service/account-service/pom.xml            | 120 [32m+++++++++[m
+ .../acount_service/AccountServiceApplication.java  |  13 [32m+[m
+ .../controller/AccountController.java              |  51 [32m++++[m
+ .../acount_service/dto/CustomerRequest.java        |  51 [32m++++[m
+ .../acount_service/dto/CustomerResponse.java       |  17 [32m++[m
+ .../example/acount_service/entity/Customer.java    |  48 [32m++++[m
+ .../repository/CustomerRepository.java             |  11 [32m+[m
+ .../acount_service/service/AccountService.java     |  79 [32m++++++[m
+ .../src/main/resources/application.properties      |  13 [32m+[m
+ .../resources/db/migration/V1__initial_schema.sql  |  12 [32m+[m
+ .../AcountServiceApplicationTests.java             |  13 [32m+[m
+ api-gateway/.idea/.gitignore                       |  10 [32m+[m
+ api-gateway/Dockerfile                             |   0
+ .../config/GatewayErrorWebExceptionHandler.java    |   4 [32m+[m
+ billing-frontend/src/api.js                        |   0
+ billing-frontend/src/components/CheckoutForm.jsx   |   0
+ billing-frontend/src/components/ChurnDashboard.jsx |   0
+ billing-frontend/src/notes.txt                     |   0
+ 26 files changed, 989 insertions(+)

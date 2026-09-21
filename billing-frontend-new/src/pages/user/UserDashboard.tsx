@@ -9,6 +9,10 @@ import useCustomerStore from "../../stores/customerStore";
 function UserDashboard() {
   const navigate = useNavigate();
 
+  const currentCustomer = useCustomerStore(
+  (state) => state.currentCustomer
+);
+
   const fetchCurrentCustomer = useCustomerStore(
     (state) => state.fetchCurrentCustomer
   );
@@ -192,7 +196,9 @@ function UserDashboard() {
 
       <div className="user-dashboard-header">
         <div>
-          <h1>Welcome back</h1>
+          <h1>Welcome, {currentCustomer?.firstName}{" "}
+            {currentCustomer?.lastName} !
+          </h1>
 
           <p>
             Here's an overview of your subscription

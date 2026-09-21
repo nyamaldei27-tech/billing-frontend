@@ -21,6 +21,7 @@ import UserPaymentHistory from "../pages/user/UserPaymentHistory";
 import EditProfile from "../pages/user/EditProfile";
 import InvoiceDetails from "../pages/user/InvoiceDetails";
 
+import SignIn from "../auth/SignIn";
 
 const rootRoute = createRootRoute({
   component: App,
@@ -32,6 +33,15 @@ const indexRoute = createRoute({
   component: () => <Navigate to="/user/dashboard" />,
 });
 
+/* =========================
+   AUTH ROUTES
+   ========================= */
+
+const signInRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/sign-in",
+  component: SignIn,
+});
 
 /* =========================
    ADMIN ROUTES
@@ -130,6 +140,8 @@ const userProfileRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
+
+  signInRoute,
 
   adminRoute.addChildren([
     adminDashboardRoute,

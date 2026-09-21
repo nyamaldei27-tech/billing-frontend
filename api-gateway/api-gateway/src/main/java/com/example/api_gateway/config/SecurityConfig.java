@@ -35,7 +35,7 @@ public class SecurityConfig {
                         .map(Object::toString)
                         .map(role -> (GrantedAuthority)
                                 new org.springframework.security.core.authority.SimpleGrantedAuthority(
-                                        "ROLE_" + role
+                                        "ROLE_" + role.toUpperCase()
                                 ))
                         .collect(java.util.stream.Collectors.toList());
             }
@@ -56,6 +56,22 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.OPTIONS).permitAll()
 
                         .pathMatchers("/actuator/health").permitAll()
+
+                        .pathMatchers(
+                                HttpMethod.GET, "/api/accounts/me")
+                        .authenticated()
+
+                        .pathMatchers(HttpMethod.PUT, "/api/accounts/me")
+                        .authenticated()
+
+                        .pathMatchers(HttpMethod.POST, "/api/accounts")
+                        .hasRole("ADMIN")
+
+                        .pathMatchers(HttpMethod.GET, "/api/accounts")
+                        .hasRole("ADMIN")
+
+                        .pathMatchers(HttpMethod.DELETE, "/api/accounts/**")
+                        .hasRole("ADMIN")
 
                         // Reading plans is allowed for authenticated users
                         .pathMatchers(HttpMethod.GET, "/api/plans/**")

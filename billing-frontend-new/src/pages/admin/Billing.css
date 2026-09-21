@@ -1129,3 +1129,137 @@
     padding: 15px 18px;
   }
 }
+
+/* =========================================
+   PAYMENT ATTEMPTS
+   ========================================= */
+
+.payment-attempts-section {
+  width: 100%;
+}
+
+.payment-attempts-section .section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+}
+
+.payment-attempts-section .section-header-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.payment-attempts-section .section-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+
+/* =========================================
+   BILLING HEALTH
+   ========================================= */
+
+.billing-health-section {
+  width: 100%;
+}
+
+.billing-health-section .section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+}
+
+.billing-health-section .section-header-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.billing-health-section .section-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+
+/* =========================================
+   BILLING HEALTH CARDS
+   ========================================= */
+
+.billing-health-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+.billing-health-card {
+  width: 100%;
+  min-width: 0;
+}
+
+.billing-health-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.billing-health-card-content span {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.billing-health-card-content strong {
+  font-size: 32px;
+  line-height: 1.1;
+}
+
+.billing-health-card-content small {
+  font-size: 13px;
+}
+
+
+/* =========================================
+   PAYMENT ATTEMPTS TABLE ACTIONS
+   ========================================= */
+
+.table-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 768px) {
+  .payment-attempts-section .section-header,
+  .billing-health-section .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .payment-attempts-section .section-header-actions,
+  .billing-health-section .section-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+    margin-left: 0;
+  }
+
+  .billing-health-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

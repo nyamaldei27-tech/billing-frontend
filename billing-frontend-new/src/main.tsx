@@ -16,29 +16,28 @@ console.log(
 
 keycloak
   .init({
-    onLoad: "login-required",
+    onLoad: "check-sso",
     pkceMethod: "S256",
   })
   .then((authenticated) => {
-    if (!authenticated) {
-      console.error("User is not authenticated.");
-      return;
-    }
+    if (authenticated) {
+  useAuthStore.getState().setAuthentication();
 
-    useAuthStore.getState().setAuthentication();
+  console.log("Keycloak authentication successful.");
+  console.log(
+    "Username:",
+    keycloak.tokenParsed?.preferred_username
+  );
+  console.log("Token:", keycloak.token);
+} else {
+  console.log("User is not authenticated.");
+}
 
-    console.log("Keycloak authentication successful.");
-    console.log(
-      "Username:",
-      keycloak.tokenParsed?.preferred_username
-    );
-    console.log("Token:", keycloak.token);
-
-    createRoot(document.getElementById("root")!).render(
-      <StrictMode>
-        <RouterProvider router={router} />
-      </StrictMode>
-    );
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <RouterProvider router={router} />
+  </StrictMode>
+);
   })
   .catch((error) => {
     console.error(

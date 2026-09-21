@@ -614,7 +614,7 @@ function Dashboard() {
             type="button"
             onClick={() =>
               navigate({
-                to: "/billing",
+                to: "/Billing",
               })
             }
           >

@@ -9,6 +9,8 @@
 .user-dashboard-header h1 {
   margin: 0;
   font-size: 32px;
+  text-decoration-color: aqua;
+  color: rgb(132, 0, 255);
 }
 
 .user-dashboard-header p {
